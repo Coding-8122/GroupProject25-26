@@ -1,6 +1,7 @@
 from flask import Flask
 from config import Config
 from app.extensions import db, migrate, login_manager
+from app.models.user import User
 
 def create_app(config_class=Config):
     app = Flask(__name__)
