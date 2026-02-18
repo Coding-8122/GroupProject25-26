@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<section class="card">
+  <h2>Chart: muscle volume</h2>
+  <canvas id="muscleVolumeChart"></canvas>
+  <p class="muted" id="muscleNoData">No data yet.</p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  if (typeof renderMuscleVolume === "function") renderMuscleVolume();
+</script>
+{% endblock %}

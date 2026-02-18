@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}Body Metrics{% endblock %}
+
+{% block content %}
+<h1>Body Metrics</h1>
+
+<section class="card">
+  <h2>Add check-in form</h2>
+  <!-- Placeholder form - backend will wire this up -->
+  <form>
+    <label>Date</label><br>
+    <input type="date"><br><br>
+
+    <label>Weight</label><br>
+    <input type="number" step="0.1" placeholder="kg"><br><br>
+
+    <label>Body fat %</label><br>
+    <input type="number" step="0.1" placeholder="%"><br><br>
+
+    <button type="button">Save check-in</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Chart: weight over time</h2>
+  <canvas id="weightOverTimeChart"></canvas>
+  <p class="muted" id="weightNoData">No data yet.</p>
+</section>
+
+<section class="card">
+  <h2>Chart: body fat over time</h2>
+  <canvas id="bodyFatOverTimeChart"></canvas>
+  <p class="muted" id="bodyFatNoData">No data yet.</p>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Dummy render calls for now 
+  if (typeof renderWeightOverTime === "function") renderWeightOverTime();
+  if (typeof renderBodyFatOverTime === "function") renderBodyFatOverTime();
+</script>
+{% endblock %}
