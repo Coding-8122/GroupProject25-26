@@ -3,3 +3,17 @@ body {
   margin: 0;
   padding: 24px;
 }
+
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.muted {
+  color: #6b7280;
+  font-size: 14px;
+}
+
