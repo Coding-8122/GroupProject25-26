@@ -8,7 +8,7 @@ from app.extensions import db
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('auth.dashboard'))
+        return redirect(url_for('main.dashboard'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(
@@ -27,14 +27,14 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('auth.dashboard'))
+        return redirect(url_for('main.dashboard'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('auth.dashboard'))
+            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
         else:
             flash('Login Unsuccessful. Please check email and password', 'danger')
     return render_template('auth/login.html', title='Login', form=form)
@@ -43,8 +43,3 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
-
-@auth_bp.route('/dashboard')
-@login_required
-def dashboard():
-    return render_template('auth/dashboard.html', title='Dashboard')
