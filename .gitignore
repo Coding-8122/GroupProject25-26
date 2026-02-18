@@ -6,3 +6,4 @@ instance/
 *.db
 *.log
 uv.lock
+.idea
