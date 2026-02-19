@@ -19,4 +19,7 @@ def create_app(config_class=Config):
     from app.main.routes import main_bp
     app.register_blueprint(main_bp)
 
+    from app.user.routes import user_bp
+    app.register_blueprint(user_bp, url_prefix='/user')
+
     return app
