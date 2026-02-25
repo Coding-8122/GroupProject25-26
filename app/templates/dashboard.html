@@ -10,10 +10,17 @@
   <canvas id="muscleVolumeChart"></canvas>
   <p class="muted" id="muscleNoData">No data yet.</p>
 </section>
+
+<section class="card">
+  <h2>Weekly training volume</h2>
+  <canvas id="weeklyTrainingVolumeChart"></canvas>
+  <p class="muted" id="weeklyTrainingVolumeNoData">No data yet.</p>
+</section>
 {% endblock %}
 
 {% block scripts %}
 <script>
   if (typeof renderMuscleVolume === "function") renderMuscleVolume();
+  if (typeof renderWeeklyTrainingVolume === "function") renderWeeklyTrainingVolume();
 </script>
 {% endblock %}
