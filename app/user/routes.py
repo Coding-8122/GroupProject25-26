@@ -4,14 +4,17 @@ from app.extensions import db
 from app.user import user_bp
 from app.user.forms import UpdateProfileForm
 
-
 @user_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    """
+    User profile management.
+    Allows updating gender, birth date, height, and weight.
+    """
     form = UpdateProfileForm()
 
     if form.validate_on_submit():
-        # Update user data from form
+        # Update current user instance with form data
         current_user.gender = form.gender.data
         current_user.birth_date = form.birth_date.data
         current_user.height = form.height.data
@@ -22,7 +25,7 @@ def profile():
         return redirect(url_for('user.profile'))
 
     elif request.method == 'GET':
-        # Pre-populate form with existing data
+        # Populate form fields with existing data from database
         form.gender.data = current_user.gender
         form.birth_date.data = current_user.birth_date
         form.height.data = current_user.height
