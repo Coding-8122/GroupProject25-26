@@ -1,0 +1,23 @@
+from app.extensions import db
+from datetime import datetime
+
+
+class WorkoutLog(db.Model):
+    __tablename__ = 'workout_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    date = db.Column(db.Date, default=datetime.utcnow().date, nullable=False)
+
+    exercise_name = db.Column(db.String(100), nullable=False)
+    sets = db.Column(db.Integer, nullable=False)
+    reps = db.Column(db.Integer, nullable=False)
+    weight = db.Column(db.Float, nullable=False)  # Weight in kg
+
+    @property
+    def volume(self):
+        """Calculates total training volume for the entry."""
+        return self.sets * self.reps * self.weight
+
+    def __repr__(self):
+        return f'<WorkoutLog {self.exercise_name} - {self.date}>'
