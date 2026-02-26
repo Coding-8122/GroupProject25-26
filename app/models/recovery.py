@@ -7,15 +7,13 @@ class RecoveryLog(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    date = db.Column(db.Date, default=datetime.utcnow().date, index=True)
+    date = db.Column(db.Date, default=datetime.utcnow().date, nullable=False)
 
-    # Recovery Metrics
+    # Core recovery metrics
     sleep_hours = db.Column(db.Float, nullable=False)
-    stress_level = db.Column(db.Integer)  # 1-10
-    muscle_soreness = db.Column(db.Integer)  # 1-10
-    hrv = db.Column(db.Integer)  # Heart Rate Variability
-
-    user = db.relationship('User', backref=db.backref('logs', lazy=True))
+    muscle_soreness = db.Column(db.Integer, nullable=False)  # Scale 1-10
+    energy_level = db.Column(db.Integer, nullable=False)  # Scale 1-10
+    stress_level = db.Column(db.Integer, nullable=False)  # Scale 1-10
 
     def __repr__(self):
         return f'<RecoveryLog {self.date} - User {self.user_id}>'
