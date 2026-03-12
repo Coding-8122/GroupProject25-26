@@ -3,42 +3,56 @@
 {% block title %}Body Metrics{% endblock %}
 
 {% block content %}
-<h1>Body Metrics</h1>
+<h1 class="mb-4">Body Metrics</h1>
 
-<section class="card">
-  <h2>Add check-in form</h2>
-  <!-- Placeholder form - backend will wire this up -->
+<section class="card p-3 mb-4 shadow-sm">
+  <h2 class="h5 mb-3">Add Daily Check-in</h2>
   <form>
-    <label>Date</label><br>
-    <input type="date"><br><br>
-
-    <label>Weight</label><br>
-    <input type="number" step="0.1" placeholder="kg"><br><br>
-
-    <label>Body fat %</label><br>
-    <input type="number" step="0.1" placeholder="%"><br><br>
-
-    <button type="button">Save check-in</button>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="form-label small">Date</label>
+        <input type="date" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small">Weight (kg)</label>
+        <input type="number" step="0.1" class="form-control" placeholder="e.g. 75.5">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label small">Body Fat %</label>
+        <input type="number" step="0.1" class="form-control" placeholder="e.g. 15.0">
+      </div>
+    </div>
+    <div class="mt-3">
+      <button type="button" class="btn btn-primary w-100">Save Check-in</button>
+    </div>
   </form>
 </section>
 
-<section class="card">
-  <h2>Chart: weight over time</h2>
-  <canvas id="weightOverTimeChart"></canvas>
-  <p class="muted" id="weightNoData">No data yet.</p>
+<section class="card p-3 mb-4 shadow-sm">
+  <h2 class="h5 mb-3">Weight Over Time</h2>
+  <div class="chart-container">
+    <canvas id="weightOverTimeChart"></canvas>
+  </div>
+  <p class="text-muted small mt-2" id="weightNoData" style="display: none;">No data yet.</p>
 </section>
 
-<section class="card">
-  <h2>Chart: body fat over time</h2>
-  <canvas id="bodyFatOverTimeChart"></canvas>
-  <p class="muted" id="bodyFatNoData">No data yet.</p>
+<section class="card p-3 shadow-sm">
+  <h2 class="h5 mb-3">Body Fat Percentage Over Time</h2>
+  <div class="chart-container">
+    <canvas id="bodyFatOverTimeChart"></canvas>
+  </div>
+  <p class="text-muted small mt-2" id="bodyFatNoData" style="display: none;">No data yet.</p>
 </section>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Dummy render calls for now 
-  if (typeof renderWeightOverTime === "function") renderWeightOverTime();
-  if (typeof renderBodyFatOverTime === "function") renderBodyFatOverTime();
+  // Firing the specific metrics charts for this page
+  document.addEventListener('DOMContentLoaded', function() {
+      console.log("Body Metrics ready, initializing charts...");
+      if (typeof renderWeightOverTime === "function") renderWeightOverTime();
+      if (typeof renderBodyFatOverTime === "function") renderBodyFatOverTime();
+  });
 </script>
 {% endblock %}
