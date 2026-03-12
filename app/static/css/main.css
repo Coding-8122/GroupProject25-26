@@ -1,15 +1,65 @@
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 24px;
+  padding: 20px;
+  background: #f4f6f8;
+  color: #1f2937;
+}
+
+.container {
+  max-width: 1100px;
+}
+
+.page-shell {
+  padding-bottom: 20px;
+}
+
+.navbar {
+  background: #1f2937 !important;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.navbar-brand {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white !important;
+}
+
+.navbar-nav .nav-link {
+  color: white !important;
+  margin-left: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link:focus {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+h1 {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-bottom: 6px;
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 16px;
+  background: white;
+  border: 1px solid #dbe2e8;
+  border-radius: 12px;
+  padding: 18px;
   margin: 16px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .muted {
@@ -17,3 +67,173 @@ body {
   font-size: 14px;
 }
 
+.flash-message {
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+button,
+.btn {
+  border-radius: 8px;
+}
+
+input,
+select,
+textarea,
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #cfd6dd;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-control:focus,
+button:focus,
+.btn:focus,
+.nav-link:focus,
+.navbar-toggler:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.dashboardLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboardTop {
+  background: white;
+  border: 1px solid #dbe2e8;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dashboardLabel {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+.dashboardSummary {
+  max-width: 650px;
+  margin: 0;
+  color: #4b5563;
+}
+
+.dashboardStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.dashboardStatBox {
+  background: white;
+  border: 1px solid #dbe2e8;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.dashboardStatLabel {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dashboardStatValue {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.dashboardCard {
+  padding: 20px;
+}
+
+.dashboardCardTop {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.mutedCardNote {
+  margin-bottom: 0;
+}
+
+.dashboardChartWrap {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px;
+  min-height: 320px;
+}
+
+.dashboardChartWrap canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+.dashboardEmpty {
+  margin-top: 14px;
+  background: #f9fafb;
+  border: 1px dashed #cfd6dd;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.dashboardEmptyTitle {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.dashboardEmptyText {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .navbar-nav .nav-link {
+    margin-left: 0;
+    margin-top: 6px;
+  }
+
+  .card,
+  .dashboardTop,
+  .dashboardCard {
+    padding: 14px;
+  }
+
+  .dashboardStats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboardChartWrap {
+    min-height: 220px;
+    padding: 10px;
+  }
+
+  .dashboardSummary {
+    font-size: 15px;
+  }
+}

@@ -3,17 +3,55 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1>Dashboard</h1>
+<div class="dashboardLayout">
+  <div class="dashboardTop">
+    <p class="dashboardLabel">Recovery Tracker</p>
+    <h1>Dashboard</h1>
+    <p class="dashboardSummary">View your muscle volume data and monitor your progress in one place.</p>
+  </div>
 
-<section class="card">
-  <h2>Chart: muscle volume</h2>
-  <canvas id="muscleVolumeChart"></canvas>
-  <p class="muted" id="muscleNoData">No data yet.</p>
-</section>
+  <div class="dashboardStats">
+    <div class="dashboardStatBox">
+      <p class="dashboardStatLabel">Tracked muscle groups</p>
+      <p class="dashboardStatValue">3 groups</p>
+      <!-- Placeholder value for frontend display only -->
+    </div>
+
+    <div class="dashboardStatBox">
+      <p class="dashboardStatLabel">Highest volume</p>
+      <p class="dashboardStatValue">Legs</p>
+      <!-- Placeholder value for frontend display only -->
+    </div>
+
+    <div class="dashboardStatBox">
+      <p class="dashboardStatLabel">Logging day streak</p>
+      <p class="dashboardStatValue">5 days</p>
+      <!-- Placeholder value for frontend display only -->
+    </div>
+  </div>
+
+  <section class="card dashboardCard">
+    <div class="dashboardCardTop">
+      <div>
+        <h2>Muscle Volume</h2>
+        <p class="muted mutedCardNote">Recorded volume data shown over time.</p>
+      </div>
+    </div>
+
+    <div class="dashboardChartWrap">
+      <canvas id="muscleVolumeChart"></canvas>
+    </div>
+
+    <div class="dashboardEmpty" id="muscleNoData">
+      <p class="dashboardEmptyTitle">No muscle volume data</p>
+      <p class="dashboardEmptyText">Add muscle volume entries to display the chart here.</p>
+    </div>
+  </section>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  if (typeof renderMuscleVolume === "function") renderMuscleVolume();
+  if (typeof renderMuscleVolume === 'function') renderMuscleVolume();
 </script>
 {% endblock %}
