@@ -1,22 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Recovery Dashboard</h1>
+<h1 class="mb-4">Recovery Dashboard</h1>
 
 <div class="row">
     <div class="col-md-6">
         <section class="card p-3 mb-4 shadow-sm">
-            <h3>Log Daily Recovery</h3>
+            <h3 class="h5 mb-3">Log Daily Recovery</h3>
             <form method="POST">
                 {{ form.hidden_tag() }}
                 <div class="mb-2">
-                    {{ form.sleep_hours.label }}
+                    {{ form.sleep_hours.label(class="form-label") }}
                     {{ form.sleep_hours(class="form-control") }}
                 </div>
-                <div class="row">
-                    <div class="col-4">{{ form.muscle_soreness.label }}{{ form.muscle_soreness(class="form-control") }}</div>
-                    <div class="col-4">{{ form.energy_level.label }}{{ form.energy_level(class="form-control") }}</div>
-                    <div class="col-4">{{ form.stress_level.label }}{{ form.stress_level(class="form-control") }}</div>
+                <div class="row g-2">
+                    <div class="col-4">
+                        {{ form.muscle_soreness.label(class="small") }}
+                        {{ form.muscle_soreness(class="form-control") }}
+                    </div>
+                    <div class="col-4">
+                        {{ form.energy_level.label(class="small") }}
+                        {{ form.energy_level(class="form-control") }}
+                    </div>
+                    <div class="col-4">
+                        {{ form.stress_level.label(class="small") }}
+                        {{ form.stress_level(class="form-control") }}
+                    </div>
                 </div>
                 <div class="mt-3">
                     {{ form.submit(class="btn btn-primary w-100") }}
@@ -27,10 +36,34 @@
 
     <div class="col-md-6">
         <section class="card p-3 shadow-sm">
-            <h3>Muscle Recovery Chart</h3>
-            <canvas id="muscleVolumeChart"></canvas>
-            {% if not logs %}<p class="text-muted">No recovery data available.</p>{% endif %}
+            <h3 class="h5 mb-3">Muscle Recovery Chart</h3>
+            <div class="chart-container">
+                <canvas id="muscleVolumeChart"></canvas>
+            </div>
+            <p class="text-muted mt-2" id="muscleNoData" style="display: none;">No recovery data available.</p>
         </section>
     </div>
 </div>
+
+<div class="row mt-2">
+    <div class="col-12">
+        <section class="card p-3 shadow-sm">
+            <h3 class="h5 mb-3">Weekly Training Volume</h3>
+            <div class="chart-container">
+                <canvas id="weeklyTrainingVolumeChart"></canvas>
+            </div>
+            <p class="text-muted mt-2" id="weeklyTrainingVolumeNoData" style="display: none;">No data yet.</p>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Dashboard loaded, initializing charts...");
+        if (typeof renderMuscleVolume === "function") renderMuscleVolume();
+        if (typeof renderWeeklyTrainingVolume === "function") renderWeeklyTrainingVolume();
+    });
+</script>
 {% endblock %}
