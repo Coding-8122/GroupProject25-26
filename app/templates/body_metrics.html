@@ -24,20 +24,28 @@
 
 <section class="card">
   <h2>Chart: weight over time</h2>
-  <canvas id="weightOverTimeChart"></canvas>
+
+  <div class="chart-container">
+    <canvas id="weightOverTimeChart"></canvas>
+  </div>
+
   <p class="muted" id="weightNoData">No data yet.</p>
 </section>
 
 <section class="card">
   <h2>Chart: body fat over time</h2>
-  <canvas id="bodyFatOverTimeChart"></canvas>
+
+  <div class="chart-container">
+    <canvas id="bodyFatOverTimeChart"></canvas>
+  </div>
+
   <p class="muted" id="bodyFatNoData">No data yet.</p>
 </section>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Dummy render calls for now 
   if (typeof renderWeightOverTime === "function") renderWeightOverTime();
   if (typeof renderBodyFatOverTime === "function") renderBodyFatOverTime();
 </script>

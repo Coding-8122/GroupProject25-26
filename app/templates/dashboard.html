@@ -7,15 +7,24 @@
 
 <section class="card">
   <h2>Chart: muscle volume</h2>
-  <canvas id="muscleVolumeChart"></canvas>
+
+  <div class="chart-container">
+    <canvas id="muscleVolumeChart"></canvas>
+  </div>
+
   <p class="muted" id="muscleNoData">No data yet.</p>
 </section>
 
 <section class="card">
   <h2>Weekly training volume</h2>
-  <canvas id="weeklyTrainingVolumeChart"></canvas>
+
+  <div class="chart-container">
+    <canvas id="weeklyTrainingVolumeChart"></canvas>
+  </div>
+
   <p class="muted" id="weeklyTrainingVolumeNoData">No data yet.</p>
 </section>
+
 {% endblock %}
 
 {% block scripts %}
