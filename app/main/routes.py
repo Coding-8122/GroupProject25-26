@@ -32,8 +32,8 @@ def dashboard():
         # Run the calculation logic
         # We use a default intensity of 5 until you add that field to your forms
         log.recovery_estimated = calculate_recovery_hours(
-            intensity=5, 
-            soreness=log.muscle_soreness, 
+            intensity=5,
+            soreness=log.muscle_soreness,
             sleep_hours=log.sleep_hours
         )
 
@@ -56,6 +56,8 @@ def workouts():
         new_workout = WorkoutLog(
             user_id=current_user.id,
             exercise_name=form.exercise_name.data,
+            muscle_group=form.muscle_group.data,
+            intensity=form.intensity.data,
             sets=form.sets.data,
             reps=form.reps.data,
             weight=form.weight.data
