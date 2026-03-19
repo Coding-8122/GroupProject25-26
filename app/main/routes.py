@@ -6,9 +6,10 @@ from app.models.recovery import RecoveryLog
 from app.models.workout import WorkoutLog
 from app.main.forms import RecoveryLogForm, WorkoutLogForm
 from datetime import datetime
+from app.utils.recovery_calculations import calculate_recovery_hours
 
 
-@main_bp.route('/')
+@main_bp.route('/', methods=['GET', 'POST'])
 @main_bp.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
@@ -17,19 +18,27 @@ def dashboard():
 
     if form.validate_on_submit():
         today = datetime.utcnow().date()
-        # Ensure only one recovery log per day
         log = RecoveryLog.query.filter_by(user_id=current_user.id, date=today).first()
         if not log:
             log = RecoveryLog(user_id=current_user.id)
             db.session.add(log)
 
+        # Capture the data from the form
         log.sleep_hours = form.sleep_hours.data
         log.muscle_soreness = form.muscle_soreness.data
         log.energy_level = form.energy_level.data
         log.stress_level = form.stress_level.data
 
+        # Run the calculation logic
+        # We use a default intensity of 5 until you add that field to your forms
+        log.recovery_estimated = calculate_recovery_hours(
+            intensity=5, 
+            soreness=log.muscle_soreness, 
+            sleep_hours=log.sleep_hours
+        )
+
         db.session.commit()
-        flash('Recovery metrics updated!', 'success')
+        flash(f'Metrics updated! Estimated recovery: {log.recovery_estimated} hours.', 'success')
         return redirect(url_for('main.dashboard'))
 
     recent_logs = RecoveryLog.query.filter_by(user_id=current_user.id) \

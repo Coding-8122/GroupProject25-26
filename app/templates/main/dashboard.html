@@ -3,6 +3,32 @@
 {% block content %}
 <h1 class="mb-4">Recovery Dashboard</h1>
 
+<div class="row mb-4">
+    <div class="col-12">
+        <section class="card p-4 shadow-sm border-primary">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <h3 class="h5 text-muted mb-1">Current Recovery Status</h3>
+                    {% if logs %}
+                        {% set latest = logs[0] %}
+                        <p class="display-4 fw-bold text-primary mb-0">{{ latest.recovery_estimated }} <small class="h4 text-muted">hours</small></p>
+                        <p class="text-muted mb-0">Calculated on {{ latest.date.strftime('%A, %b %d') }}</p>
+                    {% else %}
+                        <p class="h4 text-muted">No data logged today.</p>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    {% if logs and logs[0].recovery_estimated and logs[0].recovery_estimated > 24 %}
+                        <span class="badge bg-warning text-dark p-2 fs-6">Recovery in Progress</span>
+                    {% elif logs %}
+                        <span class="badge bg-success p-2 fs-6">Ready to Train</span>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-6">
         <section class="card p-3 mb-4 shadow-sm">
@@ -45,7 +71,43 @@
     </div>
 </div>
 
-<div class="row mt-2">
+<div class="row mt-4">
+    <div class="col-12">
+        <section class="card p-3 shadow-sm">
+            <h3 class="h5 mb-3">Recovery History</h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Sleep</th>
+                            <th>Soreness</th>
+                            <th>Energy</th>
+                            <th>Stress</th>
+                            <th>Estimate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.date.strftime('%d %b') }}</td>
+                            <td>{{ log.sleep_hours }} hrs</td>
+                            <td>{{ log.muscle_soreness }}/10</td>
+                            <td>{{ log.energy_level }}/10</td>
+                            <td>{{ log.stress_level }}/10</td>
+                            <td>
+                                <span class="badge bg-primary">{{ log.recovery_estimated }} hrs</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row mt-4">
     <div class="col-12">
         <section class="card p-3 shadow-sm">
             <h3 class="h5 mb-3">Weekly Training Volume</h3>
