@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ develop, main ]
 
-# Concurrency group to cancel previous runs on the same branch/PR
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -14,14 +13,14 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    # Define environment variables at the job level so both the app and the DB service can use them
+
     env:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: recovery_test
       DATABASE_URL: "postgresql://user:password@localhost:5432/recovery_test"
       SECRET_KEY: "test-key-for-ci"
+      PYTHONPATH: .
 
     services:
       postgres:
@@ -39,30 +38,23 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Install uv - modern, lightning-fast Python package manager
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
 
-      # Set up Python 3.13 using uv's integration
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
-      - name: Install dependencies
-        # Syncs the environment strictly with the lockfile
+      - name: Install project dependencies
         run: uv sync --all-extras --dev
 
-      - name: Run migrations (Optional but recommended)
-        # run: uv run flask db upgrade
-        run: echo "Skipping migrations for now"
-
-      - name: Run tests
+      - name: Execute test suite
         run: |
           uv run pytest tests/ --maxfail=1 --disable-warnings
