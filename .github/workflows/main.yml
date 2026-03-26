@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      # If you decide to use PostgreSQL in CI later, add it here
       postgres:
         image: postgres:15
         env:
@@ -27,7 +26,8 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python 3.13
         uses: actions/setup-python@v5
@@ -41,6 +41,7 @@ jobs:
           pip install pytest pytest-flask sqlalchemy
 
       - name: Run tests
+        # env and run must be at the same indentation level
         env:
           DATABASE_URL: sqlite:///:memory:
           SECRET_KEY: test-key-for-ci
