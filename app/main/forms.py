@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField, SelectField, DateField
 from wtforms.validators import DataRequired, NumberRange, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class RecoveryLogForm(FlaskForm):
     sleep_hours = FloatField('Sleep Hours', validators=[DataRequired(), NumberRange(0, 24)])
@@ -24,7 +24,7 @@ class WorkoutLogForm(FlaskForm):
 
 class BodyMetricsForm(FlaskForm):
     """Form for weight and body fat check-ins."""
-    date = DateField('Date', default=datetime.utcnow, validators=[DataRequired()])
+    date = DateField('Date', default=lambda: datetime.now(timezone.utc).date(), validators=[DataRequired()])
     weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0)])
     body_fat = FloatField('Body Fat %', validators=[Optional(), NumberRange(0, 100)])
     submit = SubmitField('Save Check-in')

@@ -1,7 +1,7 @@
 from app.extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
@@ -9,7 +9,8 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Using lambda ensures the time is evaluated at insertion
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Personal metrics
     gender = db.Column(db.String(20))

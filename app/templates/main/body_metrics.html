@@ -5,50 +5,77 @@
 {% block content %}
 <h1 class="mb-4">Body Metrics</h1>
 
-<section class="card p-3 mb-4 shadow-sm">
-  <h2 class="h5 mb-3">Add Daily Check-in</h2>
-  <form>
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label class="form-label small">Date</label>
-        <input type="date" class="form-control">
-      </div>
-      <div class="col-md-4">
-        <label class="form-label small">Weight (kg)</label>
-        <input type="number" step="0.1" class="form-control" placeholder="e.g. 75.5">
-      </div>
-      <div class="col-md-4">
-        <label class="form-label small">Body Fat %</label>
-        <input type="number" step="0.1" class="form-control" placeholder="e.g. 15.0">
-      </div>
+<div class="row">
+    <div class="col-md-4">
+        <section class="card p-3 mb-4 shadow-sm">
+            <h2 class="h5 mb-3">Add Daily Check-in</h2>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.date.label(class="form-label small") }}
+                    {{ form.date(class="form-control", type="date") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.weight.label(class="form-label small") }}
+                    {{ form.weight(class="form-control", placeholder="e.g. 75.5") }}
+                </div>
+                <div class="mb-3">
+                    {{ form.body_fat.label(class="form-label small") }}
+                    {{ form.body_fat(class="form-control", placeholder="e.g. 15.0") }}
+                </div>
+                <div class="mt-3">
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </div>
+            </form>
+        </section>
     </div>
-    <div class="mt-3">
-      <button type="button" class="btn btn-primary w-100">Save Check-in</button>
+
+    <div class="col-md-8">
+        <section class="card p-3 mb-4 shadow-sm">
+            <h2 class="h5 mb-3">Weight History</h2>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Weight (kg)</th>
+                            <th>Body Fat %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in history %}
+                        <tr>
+                            <td>{{ entry.date.strftime('%d %b, %Y') }}</td>
+                            <td>{{ entry.weight }} kg</td>
+                            <td>{{ entry.body_fat if entry.body_fat else '-' }} %</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="card p-3 mb-4 shadow-sm">
+            <h2 class="h5 mb-3">Weight Over Time</h2>
+            <div class="chart-container">
+                <canvas id="weightOverTimeChart"></canvas>
+            </div>
+            <p class="text-muted small mt-2" id="weightNoData" style="display: none;">No data yet.</p>
+        </section>
+
+        <section class="card p-3 shadow-sm">
+            <h2 class="h5 mb-3">Body Fat Percentage Over Time</h2>
+            <div class="chart-container">
+                <canvas id="bodyFatOverTimeChart"></canvas>
+            </div>
+            <p class="text-muted small mt-2" id="bodyFatNoData" style="display: none;">No data yet.</p>
+        </section>
     </div>
-  </form>
-</section>
-
-<section class="card p-3 mb-4 shadow-sm">
-  <h2 class="h5 mb-3">Weight Over Time</h2>
-  <div class="chart-container">
-    <canvas id="weightOverTimeChart"></canvas>
-  </div>
-  <p class="text-muted small mt-2" id="weightNoData" style="display: none;">No data yet.</p>
-</section>
-
-<section class="card p-3 shadow-sm">
-  <h2 class="h5 mb-3">Body Fat Percentage Over Time</h2>
-  <div class="chart-container">
-    <canvas id="bodyFatOverTimeChart"></canvas>
-  </div>
-  <p class="text-muted small mt-2" id="bodyFatNoData" style="display: none;">No data yet.</p>
-</section>
-
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Firing the specific metrics charts for this page
   document.addEventListener('DOMContentLoaded', function() {
       console.log("Body Metrics ready, initializing charts...");
       if (typeof renderWeightOverTime === "function") renderWeightOverTime();

@@ -1,30 +1,32 @@
 from flask import render_template, url_for, flash, redirect, request
 from flask_login import login_required, current_user
+from sqlalchemy import func
 from app.main import main_bp
 from app.extensions import db
 from app.models.recovery import RecoveryLog
 from app.models.workout import WorkoutLog
 from app.models.body_metric import BodyMetric
 from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm
-from datetime import datetime
+from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
+
 
 @main_bp.route('/', methods=['GET', 'POST'])
 @main_bp.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    """Handles recovery display and logging based on muscle-specific data."""
+    """Handles recovery display and logging based on accurate daily maximum intensity."""
     form = RecoveryLogForm()
+    today = datetime.now(timezone.utc).date()
 
-    # Get the latest workout entry for this user
+    # Retrieve the latest workout entry for UI display purposes
     last_workout = WorkoutLog.query.filter_by(user_id=current_user.id) \
         .order_by(WorkoutLog.date.desc(), WorkoutLog.id.desc()).first()
 
     if form.validate_on_submit():
-        today = datetime.utcnow().date()
         log = RecoveryLog.query.filter_by(user_id=current_user.id, date=today).first()
         if not log:
-            log = RecoveryLog(user_id=current_user.id)
+            log = RecoveryLog(user_id=current_user.id, date=today)
             db.session.add(log)
 
         log.sleep_hours = form.sleep_hours.data
@@ -32,8 +34,12 @@ def dashboard():
         log.energy_level = form.energy_level.data
         log.stress_level = form.stress_level.data
 
-        # Use actual intensity from the latest workout, fallback to 5
-        current_intensity = last_workout.intensity if last_workout else 5
+        # Extract the highest intensity logged today to prevent light exercises from skewing recovery metrics
+        max_intensity = db.session.query(func.max(WorkoutLog.intensity)) \
+            .filter(WorkoutLog.user_id == current_user.id, WorkoutLog.date == today).scalar()
+
+        # Fallback to average intensity (5) if no workout was logged today
+        current_intensity = max_intensity if max_intensity else 5
 
         log.recovery_estimated = calculate_recovery_hours(
             intensity=current_intensity,
@@ -42,7 +48,7 @@ def dashboard():
         )
 
         db.session.commit()
-        flash(f'Metrics updated! Used {last_workout.muscle_group if last_workout else "General"} intensity.', 'success')
+        flash('Recovery metrics updated successfully.', 'success')
         return redirect(url_for('main.dashboard'))
 
     recent_logs = RecoveryLog.query.filter_by(user_id=current_user.id) \
@@ -52,6 +58,7 @@ def dashboard():
                            form=form,
                            logs=recent_logs,
                            last_workout=last_workout)
+
 
 @main_bp.route('/metrics', methods=['GET', 'POST'])
 @login_required
@@ -67,11 +74,12 @@ def metrics():
         )
         db.session.add(new_metric)
         db.session.commit()
-        flash('Body metrics saved!', 'success')
+        flash('Body metrics saved successfully.', 'success')
         return redirect(url_for('main.metrics'))
 
     history = BodyMetric.query.filter_by(user_id=current_user.id).order_by(BodyMetric.date.desc()).all()
     return render_template('main/metrics.html', form=form, history=history)
+
 
 @main_bp.route('/workouts', methods=['GET', 'POST'])
 @login_required
@@ -90,10 +98,9 @@ def workouts():
         )
         db.session.add(new_workout)
         db.session.commit()
-        flash('Workout logged!', 'success')
+        flash('Workout logged successfully.', 'success')
         return redirect(url_for('main.workouts'))
 
-    # Get all workouts for history display
     history = WorkoutLog.query.filter_by(user_id=current_user.id) \
         .order_by(WorkoutLog.date.desc()).all()
 
