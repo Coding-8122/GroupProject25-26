@@ -11,7 +11,7 @@ def app():
     app.config.update({
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
-        "WTF_CSRF_ENABLED": False  # Disable CSRF for testing form submissions
+        "WTF_CSRF_ENABLED": False
     })
 
     with app.app_context():
@@ -28,14 +28,16 @@ def client(app):
 
 @pytest.fixture
 def authenticated_client(client, app):
-    """A test client with a pre-logged in user using a session mock."""
+    """A test client with a pre-logged in user."""
     with app.app_context():
         user = User(email="test@example.com")
         user.set_password("password")
         db.session.add(user)
         db.session.commit()
 
+        # Simulate login session
         with client.session_transaction() as sess:
             sess['_user_id'] = str(user.id)
             sess['_fresh'] = True
+
     return client
