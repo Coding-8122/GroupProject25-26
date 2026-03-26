@@ -1,13 +1,13 @@
 from app.extensions import db
-from datetime import datetime
-
+from datetime import datetime, timezone
 
 class WorkoutLog(db.Model):
     __tablename__ = 'workout_logs'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    date = db.Column(db.Date, default=datetime.utcnow().date, nullable=False)
+    # Using lambda ensures the time is evaluated at insertion, not at application startup
+    date = db.Column(db.Date, default=lambda: datetime.now(timezone.utc).date(), nullable=False)
 
     exercise_name = db.Column(db.String(100), nullable=False)
 

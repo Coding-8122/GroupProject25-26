@@ -23,9 +23,7 @@
                         <a class="nav-link" href="{{ url_for('main.workouts') }}">Workouts</a>
                         <a class="nav-link" href="{{ url_for('main.metrics') }}">Body Metrics</a>
                         <a class="nav-link" href="{{ url_for('user.profile') }}">Profile</a>
-                        <div class="nav-item">
-                            <a class="nav-link text-warning" href="{{ url_for('auth.logout') }}">Logout</a>
-                        </div>
+                        <a class="nav-link text-warning" href="{{ url_for('auth.logout') }}">Logout</a>
                     {% else %}
                         <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                         <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>

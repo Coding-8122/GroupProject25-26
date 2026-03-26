@@ -20,21 +20,33 @@
                     <div class="mb-3">
                         {{ form.gender.label(class="form-label") }}
                         {{ form.gender(class="form-select") }}
+                        {% for error in form.gender.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
                     </div>
 
                     <div class="mb-3">
                         {{ form.birth_date.label(class="form-label") }}
                         {{ form.birth_date(class="form-control", type="date") }}
+                        {% for error in form.birth_date.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             {{ form.height.label(class="form-label") }}
                             {{ form.height(class="form-control", placeholder="cm") }}
+                            {% for error in form.height.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
                         </div>
                         <div class="col-md-6 mb-3">
                             {{ form.weight.label(class="form-label") }}
                             {{ form.weight(class="form-control", placeholder="kg") }}
+                            {% for error in form.weight.errors %}
+                                <span class="text-danger small">{{ error }}</span>
+                            {% endfor %}
                         </div>
                     </div>
 
