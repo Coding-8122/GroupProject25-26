@@ -4,15 +4,15 @@
 <h1 class="mb-4">Recovery Dashboard</h1>
 
 <div class="row mb-4">
-    <div class="col-12">
-        <section class="card p-4 shadow-sm border-primary">
+    <div class="col-md-8">
+        <section class="card p-4 shadow-sm border-primary h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h3 class="h5 text-muted mb-1">Current Recovery Status</h3>
+                    <h3 class="h5 text-muted mb-1">Global Recovery Status</h3>
                     {% if logs %}
                         {% set latest = logs[0] %}
                         <p class="display-4 fw-bold text-primary mb-0">{{ latest.recovery_estimated }} <small class="h4 text-muted">hours</small></p>
-                        <p class="text-muted mb-0">Calculated on {{ latest.date.strftime('%A, %b %d') }}</p>
+                        <p class="text-muted mb-0">Based on your last check-in: {{ latest.date.strftime('%A, %b %d') }}</p>
                     {% else %}
                         <p class="h4 text-muted">No data logged today.</p>
                     {% endif %}
@@ -25,6 +25,25 @@
                     {% endif %}
                 </div>
             </div>
+        </section>
+    </div>
+
+    <div class="col-md-4">
+        <section class="card p-4 shadow-sm h-100">
+            <h3 class="h5 mb-3">Muscle Status</h3>
+            <ul class="list-group list-group-flush">
+                {% if last_workout %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div>
+                        <strong class="d-block">{{ last_workout.muscle_group }}</strong>
+                        <small class="text-muted">Last trained: {{ last_workout.date.strftime('%d %b') }}</small>
+                    </div>
+                    <span class="badge rounded-pill bg-info text-dark">Intensity: {{ last_workout.intensity }}/10</span>
+                </li>
+                {% else %}
+                <li class="list-group-item px-0 text-muted small">No recent workouts found.</li>
+                {% endif %}
+            </ul>
         </section>
     </div>
 </div>
@@ -89,32 +108,24 @@
                     </thead>
                     <tbody>
                         {% for log in logs %}
-                        <tr>
-                            <td>{{ log.date.strftime('%d %b') }}</td>
-                            <td>{{ log.sleep_hours }} hrs</td>
-                            <td>{{ log.muscle_soreness }}/10</td>
-                            <td>{{ log.energy_level }}/10</td>
-                            <td>{{ log.stress_level }}/10</td>
-                            <td>
+                    <tr>
+                        <td>{{ log.date.strftime('%d %b') }}</td>
+                        <td>{{ log.sleep_hours }} hrs</td>
+                        <td>{{ log.muscle_soreness }}/10</td>
+                        <td>{{ log.energy_level }}/10</td>
+                        <td>{{ log.stress_level }}/10</td>
+                        <td>
+                            {% if log.recovery_estimated %}
                                 <span class="badge bg-primary">{{ log.recovery_estimated }} hrs</span>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                            {% else %}
+                                <span class="badge bg-secondary">Processing</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
-        </section>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-12">
-        <section class="card p-3 shadow-sm">
-            <h3 class="h5 mb-3">Weekly Training Volume</h3>
-            <div class="chart-container">
-                <canvas id="weeklyTrainingVolumeChart"></canvas>
-            </div>
-            <p class="text-muted mt-2" id="weeklyTrainingVolumeNoData" style="display: none;">No data yet.</p>
         </section>
     </div>
 </div>

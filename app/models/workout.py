@@ -10,6 +10,10 @@ class WorkoutLog(db.Model):
     date = db.Column(db.Date, default=datetime.utcnow().date, nullable=False)
 
     exercise_name = db.Column(db.String(100), nullable=False)
+
+    muscle_group = db.Column(db.String(50), nullable=False, default='Full Body')
+    intensity = db.Column(db.Integer, nullable=False, default=5)  # RPE 1-10
+
     sets = db.Column(db.Integer, nullable=False)
     reps = db.Column(db.Integer, nullable=False)
     weight = db.Column(db.Float, nullable=False)  # Weight in kg
@@ -20,4 +24,4 @@ class WorkoutLog(db.Model):
         return self.sets * self.reps * self.weight
 
     def __repr__(self):
-        return f'<WorkoutLog {self.exercise_name} - {self.date}>'
+        return f'<WorkoutLog {self.exercise_name} ({self.muscle_group}) - {self.date}>'
