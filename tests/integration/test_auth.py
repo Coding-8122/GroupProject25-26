@@ -4,8 +4,8 @@ from app.extensions import db
 
 
 def test_user_registration(client, app):
-    """Test user registration endpoint."""
-    response = client.post('/register', data={
+    """Test user registration endpoint using the correct auth blueprint prefix."""
+    response = client.post('/auth/register', data={
         'email': 'newuser@example.com',
         'password': 'password123',
         'confirm_password': 'password123'
@@ -19,14 +19,14 @@ def test_user_registration(client, app):
 
 
 def test_user_login(client, app):
-    """Test user login endpoint."""
+    """Test user login endpoint using the correct auth blueprint prefix."""
     with app.app_context():
         user = User(email="login@example.com")
         user.set_password("mypassword")
         db.session.add(user)
         db.session.commit()
 
-    response = client.post('/login', data={
+    response = client.post('/auth/login', data={
         'email': 'login@example.com',
         'password': 'mypassword'
     }, follow_redirects=True)

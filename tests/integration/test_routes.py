@@ -3,10 +3,11 @@ from app.models.workout import WorkoutLog
 from app.models.body_metric import BodyMetric
 
 def test_dashboard_access_unauthenticated(client):
-    """Ensure unauthenticated users are redirected to login."""
+    """Ensure unauthenticated users are redirected to the correct login route."""
     response = client.get('/dashboard', follow_redirects=False)
     assert response.status_code == 302
-    assert '/login' in response.headers['Location']
+    # The application now redirects to the auth blueprint
+    assert '/auth/login' in response.headers['Location']
 
 def test_dashboard_access_authenticated(authenticated_client):
     """Ensure authenticated users can access the dashboard."""
