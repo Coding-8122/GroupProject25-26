@@ -1,4 +1,4 @@
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, Response
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from app.main import main_bp
@@ -9,6 +9,7 @@ from app.models.body_metric import BodyMetric
 from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm
 from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
+from app.utils.export_utils import generate_workout_csv  # New Utility Import
 
 
 @main_bp.route('/', methods=['GET', 'POST'])
@@ -105,3 +106,26 @@ def workouts():
         .order_by(WorkoutLog.date.desc()).all()
 
     return render_template('main/workouts.html', form=form, workouts=history)
+
+
+@main_bp.route('/export/workouts')
+@login_required
+def export_workouts():
+    """Generates and returns a CSV file of the user's full workout history."""
+    
+    workouts = WorkoutLog.query.filter_by(user_id=current_user.id) \
+        .order_by(WorkoutLog.date.desc()).all()
+    
+    if not workouts:
+        flash('No workout data available to export.', 'warning')
+        return redirect(url_for('main.workouts'))
+
+    csv_body = generate_workout_csv(workouts)
+    
+    return Response(
+        csv_body,
+        mimetype="text/csv",
+        headers={
+            "Content-disposition": "attachment; filename=workout_history.csv"
+        }
+    )
