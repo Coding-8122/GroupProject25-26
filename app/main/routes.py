@@ -2,6 +2,9 @@ from flask import render_template, url_for, flash, redirect, request, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from collections import defaultdict
+
+# Імпортуємо limiter з auth (або extensions, якщо перенесеш туди згодом)
+from app.auth.routes import limiter
 from app.main import main_bp
 from app.extensions import db
 from app.models.recovery import RecoveryLog
@@ -11,7 +14,6 @@ from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm
 from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
 
-
 @main_bp.route("/", methods=["GET", "POST"])
 @main_bp.route("/dashboard", methods=["GET", "POST"])
 @login_required
@@ -20,7 +22,6 @@ def dashboard():
     form = RecoveryLogForm()
     today = datetime.now(timezone.utc).date()
 
-    # Retrieve the latest workout entry for UI display purposes
     last_workout = (
         WorkoutLog.query.filter_by(user_id=current_user.id)
         .order_by(WorkoutLog.date.desc(), WorkoutLog.id.desc())
@@ -38,14 +39,12 @@ def dashboard():
         log.energy_level = form.energy_level.data
         log.stress_level = form.stress_level.data
 
-        # Extract the highest intensity logged today to prevent light exercises from skewing recovery metrics
         max_intensity = (
             db.session.query(func.max(WorkoutLog.intensity))
             .filter(WorkoutLog.user_id == current_user.id, WorkoutLog.date == today)
             .scalar()
         )
 
-        # Fallback to average intensity (5) if no workout was logged today
         current_intensity = max_intensity if max_intensity else 5
 
         log.recovery_estimated = calculate_recovery_hours(
@@ -69,9 +68,9 @@ def dashboard():
         "main/dashboard.html", form=form, logs=recent_logs, last_workout=last_workout
     )
 
-
 @main_bp.route("/api/stats/weight")
 @login_required
+@limiter.limit("60 per minute")
 def api_weight():
     """Returns weight and body fat data for charts."""
     metrics = (
@@ -84,17 +83,16 @@ def api_weight():
     weight_data = [m.weight for m in metrics]
     fat_data = [m.body_fat for m in metrics if m.body_fat is not None]
 
-    return jsonify(
-        {
-            "labels": labels,
-            "weight": weight_data,
-            "fat": fat_data if len(fat_data) == len(weight_data) else [],
-        }
-    )
-
+    # Return structured JSON for Chart.js
+    return jsonify({
+        "labels": labels,
+        "weight": weight_data,
+        "fat": fat_data if len(fat_data) == len(weight_data) else []
+    })
 
 @main_bp.route("/api/stats/volume")
 @login_required
+@limiter.limit("60 per minute")
 def api_volume():
     """Returns total volume per muscle group."""
     workouts = WorkoutLog.query.filter_by(user_id=current_user.id).all()
@@ -103,13 +101,10 @@ def api_volume():
     for w in workouts:
         volume_by_muscle[w.muscle_group] += w.volume
 
-    return jsonify(
-        {
-            "labels": list(volume_by_muscle.keys()),
-            "data": list(volume_by_muscle.values()),
-        }
-    )
-
+    return jsonify({
+        "labels": list(volume_by_muscle.keys()),
+        "data": list(volume_by_muscle.values())
+    })
 
 @main_bp.route("/metrics", methods=["GET", "POST"])
 @login_required
@@ -124,10 +119,7 @@ def metrics():
             body_fat=form.body_fat.data,
         )
         db.session.add(new_metric)
-
-        # Sync with user profile
         current_user.weight = form.weight.data
-
         db.session.commit()
         flash("Body metrics saved and profile updated!", "success")
         return redirect(url_for("main.metrics"))
@@ -138,7 +130,6 @@ def metrics():
         .all()
     )
     return render_template("main/metrics.html", form=form, history=history)
-
 
 @main_bp.route("/workouts", methods=["GET", "POST"])
 @login_required
