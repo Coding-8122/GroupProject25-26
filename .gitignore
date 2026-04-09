@@ -7,3 +7,4 @@ instance/
 *.log
 uv.lock
 .idea
+.pytest_cache/
