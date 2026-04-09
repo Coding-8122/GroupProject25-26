@@ -25,15 +25,14 @@ main, .container {
 /* THE CAGE: This limits the Chart.js height */
 .chart-container {
   position: relative;
-  height: 300px !important; 
+  height: 300px; /* Removed !important */
   width: 100%;
   margin-top: 16px;
 }
 
+/* Let Chart.js control the canvas directly */
 canvas {
   display: block;
-  max-height: 100% !important;
-  max-width: 100% !important;
 }
 
 h1, h2, h3 {
