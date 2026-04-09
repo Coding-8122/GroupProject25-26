@@ -1,9 +1,8 @@
-from flask import render_template, url_for, flash, redirect, request, jsonify
+from flask import render_template, url_for, flash, redirect, request, jsonify, Response
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from collections import defaultdict
 
-# Імпортуємо limiter з auth (або extensions, якщо перенесеш туди згодом)
 from app.auth.routes import limiter
 from app.main import main_bp
 from app.extensions import db
@@ -13,6 +12,7 @@ from app.models.body_metric import BodyMetric
 from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm
 from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
+from app.utils.export_utils import generate_workout_csv  
 
 @main_bp.route("/", methods=["GET", "POST"])
 @main_bp.route("/dashboard", methods=["GET", "POST"])
@@ -83,7 +83,6 @@ def api_weight():
     weight_data = [m.weight for m in metrics]
     fat_data = [m.body_fat for m in metrics if m.body_fat is not None]
 
-    # Return structured JSON for Chart.js
     return jsonify({
         "labels": labels,
         "weight": weight_data,
@@ -158,3 +157,24 @@ def workouts():
     )
 
     return render_template("main/workouts.html", form=form, workouts=history)
+
+@main_bp.route('/export/workouts')
+@login_required
+def export_workouts():
+    """Generates and returns a CSV file of the user's full workout history."""
+    workouts = WorkoutLog.query.filter_by(user_id=current_user.id) \
+        .order_by(WorkoutLog.date.desc()).all()
+    
+    if not workouts:
+        flash('No workout data available to export.', 'warning')
+        return redirect(url_for('main.workouts'))
+
+    csv_body = generate_workout_csv(workouts)
+    
+    return Response(
+        csv_body,
+        mimetype="text/csv",
+        headers={
+            "Content-disposition": "attachment; filename=workout_history.csv"
+        }
+    )
