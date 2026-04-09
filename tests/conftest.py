@@ -12,6 +12,7 @@ def app():
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "WTF_CSRF_ENABLED": False,
+            "RATELIMIT_ENABLED": False,
         }
     )
 
@@ -36,9 +37,10 @@ def authenticated_client(client, app):
         db.session.add(user)
         db.session.commit()
 
-        # Simulate login session
+        user_id = user.id
+
         with client.session_transaction() as sess:
-            sess["_user_id"] = str(user.id)
+            sess["_user_id"] = str(user_id)
             sess["_fresh"] = True
 
     return client
