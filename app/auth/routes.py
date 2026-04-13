@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 from flask import render_template, url_for, flash, redirect, request
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 import sqlalchemy as sa
 from app.auth import auth_bp
 from app.auth.forms import RegistrationForm, LoginForm
@@ -60,9 +60,10 @@ def login():
     return render_template('auth/login.html', title='Login', form=form)
 
 
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', methods=['POST'])
+@login_required
 def logout():
-    """Terminates the user session."""
+    """Terminates the user session. POST-only to prevent CSRF logout attacks."""
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('auth.login'))

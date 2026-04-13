@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField, SelectField, DateField
-from wtforms.validators import DataRequired, NumberRange, Optional
+from wtforms.validators import DataRequired, NumberRange, Optional, Length
 from datetime import datetime, timezone
 
 class RecoveryLogForm(FlaskForm):
@@ -11,15 +11,15 @@ class RecoveryLogForm(FlaskForm):
     submit = SubmitField('Log Recovery')
 
 class WorkoutLogForm(FlaskForm):
-    exercise_name = StringField('Exercise', validators=[DataRequired()])
+    exercise_name = StringField('Exercise', validators=[DataRequired(), Length(min=1, max=100)])
     muscle_group = SelectField('Muscle Group', choices=[
         ('Chest', 'Chest'), ('Back', 'Back'), ('Legs', 'Legs'),
         ('Shoulders', 'Shoulders'), ('Arms', 'Arms'), ('Core', 'Core'), ('Full Body', 'Full Body')
     ], validators=[DataRequired()])
     intensity = IntegerField('Intensity (RPE 1-10)', validators=[DataRequired(), NumberRange(1, 10)])
-    sets = IntegerField('Sets', validators=[DataRequired(), NumberRange(min=1)])
-    reps = IntegerField('Reps', validators=[DataRequired(), NumberRange(min=1)])
-    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0)])
+    sets = IntegerField('Sets', validators=[DataRequired(), NumberRange(min=1, max=100)])
+    reps = IntegerField('Reps', validators=[DataRequired(), NumberRange(min=1, max=500)])
+    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0, max=1000)])
     submit = SubmitField('Add Exercise')
 
 class BodyMetricsForm(FlaskForm):

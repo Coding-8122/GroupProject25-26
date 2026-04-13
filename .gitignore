@@ -1,7 +1,8 @@
-﻿.venv/
+.venv/
 __pycache__/
 *.pyc
 .env
+.env.*
 instance/
 *.db
 *.log

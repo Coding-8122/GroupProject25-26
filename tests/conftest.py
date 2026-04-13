@@ -32,7 +32,7 @@ def authenticated_client(client, app):
     """A test client with a pre-logged in user."""
     with app.app_context():
         user = User(email="test@example.com")
-        user.set_password("password")
+        user.set_password("password123")
         db.session.add(user)
         db.session.commit()
 

@@ -126,6 +126,8 @@ def export_workouts():
         csv_body,
         mimetype="text/csv",
         headers={
-            "Content-disposition": "attachment; filename=workout_history.csv"
+            "Content-disposition": "attachment; filename=workout_history.csv",
+            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+            "Pragma": "no-cache",
         }
     )

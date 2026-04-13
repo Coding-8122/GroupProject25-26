@@ -16,4 +16,11 @@ class Config:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     REMEMBER_COOKIE_HTTPONLY = True
+    REMEMBER_COOKIE_SECURE = True
     REMEMBER_COOKIE_DURATION = 3600
+
+    # CSRF tokens expire after 1 hour to limit replay window
+    WTF_CSRF_TIME_LIMIT = 3600
+
+    # Sessions are non-permanent by default (cleared on browser close)
+    SESSION_PERMANENT = False
