@@ -6,10 +6,11 @@ from app.extensions import db
 from app.models.recovery import RecoveryLog
 from app.models.workout import WorkoutLog
 from app.models.body_metric import BodyMetric
-from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm
+# Added EditProfileForm to the import list below
+from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm, EditProfileForm
 from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
-from app.utils.export_utils import generate_workout_csv  # New Utility Import
+from app.utils.export_utils import generate_workout_csv
 
 
 @main_bp.route('/', methods=['GET', 'POST'])
@@ -20,7 +21,6 @@ def dashboard():
     form = RecoveryLogForm()
     today = datetime.now(timezone.utc).date()
 
-    # Retrieve the latest workout entry for UI display purposes
     last_workout = WorkoutLog.query.filter_by(user_id=current_user.id) \
         .order_by(WorkoutLog.date.desc(), WorkoutLog.id.desc()).first()
 
@@ -35,11 +35,9 @@ def dashboard():
         log.energy_level = form.energy_level.data
         log.stress_level = form.stress_level.data
 
-        # Extract the highest intensity logged today to prevent light exercises from skewing recovery metrics
         max_intensity = db.session.query(func.max(WorkoutLog.intensity)) \
             .filter(WorkoutLog.user_id == current_user.id, WorkoutLog.date == today).scalar()
 
-        # Fallback to average intensity (5) if no workout was logged today
         current_intensity = max_intensity if max_intensity else 5
 
         log.recovery_estimated = calculate_recovery_hours(
@@ -112,7 +110,6 @@ def workouts():
 @login_required
 def export_workouts():
     """Generates and returns a CSV file of the user's full workout history."""
-    
     workouts = WorkoutLog.query.filter_by(user_id=current_user.id) \
         .order_by(WorkoutLog.date.desc()).all()
     
@@ -127,7 +124,32 @@ def export_workouts():
         mimetype="text/csv",
         headers={
             "Content-disposition": "attachment; filename=workout_history.csv",
-            "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-            "Pragma": "no-cache",
         }
     )
+
+@main_bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    """Handles user profile updates (Issue #130)."""
+    form = EditProfileForm()
+    
+    if form.validate_on_submit():
+        # Update current_user object with form data
+        current_user.gender = form.gender.data
+        current_user.birth_date = form.birth_date.data
+        current_user.height = form.height.data
+        current_user.weight = form.weight.data
+        
+        db.session.commit()
+        flash('Your profile has been updated!', 'success')
+        return redirect(url_for('main.profile'))
+        
+    elif request.method == 'GET':
+        # Pre-fill form with existing user data
+        form.email.data = current_user.email
+        form.gender.data = current_user.gender
+        form.birth_date.data = current_user.birth_date
+        form.height.data = current_user.height
+        form.weight.data = current_user.weight
+        
+    return render_template('main/profile.html', title='Profile Settings', form=form)

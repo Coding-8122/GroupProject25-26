@@ -4,28 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Recovery Tracker{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7icsOsd1QObViPw/tPNMY55lXk/joc7YWYp" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">RecoveryTracker</a>
-
+            <a class="navbar-brand fw-bold" href="{{ url_for('main.dashboard') }}">RecoveryTracker</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
                         <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
                         <a class="nav-link" href="{{ url_for('main.workouts') }}">Workouts</a>
                         <a class="nav-link" href="{{ url_for('main.metrics') }}">Body Metrics</a>
-                        <a class="nav-link" href="{{ url_for('user.profile') }}">Profile</a>
-                        <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline">
+                        <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+                        <form action="{{ url_for('auth.logout') }}" method="POST" class="d-inline ms-lg-2">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="nav-link text-warning btn btn-link p-0 border-0">Logout</button>
+                            <button type="submit" class="btn btn-outline-warning btn-sm">Logout</button>
                         </form>
                     {% else %}
                         <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
@@ -51,9 +49,9 @@
         {% block content %}{% endblock %}
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script nonce="{{ csp_nonce() }}" src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script nonce="{{ csp_nonce() }}" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/charts.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
