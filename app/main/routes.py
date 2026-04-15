@@ -6,7 +6,6 @@ from app.extensions import db
 from app.models.recovery import RecoveryLog
 from app.models.workout import WorkoutLog
 from app.models.body_metric import BodyMetric
-# Added EditProfileForm to the import list below
 from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm, EditProfileForm
 from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
@@ -62,7 +61,7 @@ def dashboard():
 @main_bp.route('/metrics', methods=['GET', 'POST'])
 @login_required
 def metrics():
-    """Handles body weight and fat percentage tracking."""
+    """Handles body weight tracking and provides insights (Issue #124)."""
     form = BodyMetricsForm()
     if form.validate_on_submit():
         new_metric = BodyMetric(
@@ -76,8 +75,25 @@ def metrics():
         flash('Body metrics saved successfully.', 'success')
         return redirect(url_for('main.metrics'))
 
+    # 1. History for the data table (Newest first)
     history = BodyMetric.query.filter_by(user_id=current_user.id).order_by(BodyMetric.date.desc()).all()
-    return render_template('main/metrics.html', form=form, history=history)
+    
+    # 2. Data for the Progress Chart (Oldest first for chronological order)
+    chart_data = BodyMetric.query.filter_by(user_id=current_user.id).order_by(BodyMetric.date.asc()).all()
+    labels = [m.date.strftime('%d %b') for m in chart_data] # Format: 15 Apr
+    values = [m.weight for m in chart_data]
+    
+    # 3. Quick Insight: Total weight change since tracking began
+    weight_change = 0
+    if len(chart_data) >= 2:
+        weight_change = round(chart_data[-1].weight - chart_data[0].weight, 2)
+
+    return render_template('main/metrics.html', 
+                           form=form, 
+                           history=history,
+                           labels=labels,
+                           values=values,
+                           weight_change=weight_change)
 
 
 @main_bp.route('/workouts', methods=['GET', 'POST'])
@@ -134,7 +150,6 @@ def profile():
     form = EditProfileForm()
     
     if form.validate_on_submit():
-        # Update current_user object with form data
         current_user.gender = form.gender.data
         current_user.birth_date = form.birth_date.data
         current_user.height = form.height.data
@@ -145,7 +160,6 @@ def profile():
         return redirect(url_for('main.profile'))
         
     elif request.method == 'GET':
-        # Pre-fill form with existing user data
         form.email.data = current_user.email
         form.gender.data = current_user.gender
         form.birth_date.data = current_user.birth_date
