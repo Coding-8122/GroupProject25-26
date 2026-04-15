@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField, SelectField, DateField
-from wtforms.validators import DataRequired, NumberRange, Optional, Length
+from wtforms.validators import DataRequired, NumberRange, Optional, Length, Email
 from datetime import datetime, timezone
 
 class RecoveryLogForm(FlaskForm):
@@ -28,3 +28,17 @@ class BodyMetricsForm(FlaskForm):
     weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0)])
     body_fat = FloatField('Body Fat %', validators=[Optional(), NumberRange(0, 100)])
     submit = SubmitField('Save Check-in')
+
+class EditProfileForm(FlaskForm):
+    """Form for users to update their personal details (Issue #130)."""
+    email = StringField('Email (read-only)', render_kw={'readonly': True})
+    gender = SelectField('Gender', choices=[
+        ('', 'Select...'), 
+        ('Male', 'Male'), 
+        ('Female', 'Female'), 
+        ('Other', 'Other')
+    ])
+    birth_date = DateField('Birth Date', validators=[Optional()])
+    height = FloatField('Height (cm)', validators=[DataRequired(), NumberRange(min=0, max=300)])
+    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0, max=1000)])
+    submit = SubmitField('Update Profile')

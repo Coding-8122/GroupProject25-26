@@ -1,59 +1,66 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="text-center mb-4">Profile Settings</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Profile Settings</h2>
 
-                <div class="mb-4">
-                    <label class="form-label fw-bold">Email (read-only)</label>
-                    <input type="text" class="form-control bg-light" value="{{ current_user.email }}" readonly>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small uppercase">Email (Account ID)</label>
+                        <input type="text" class="form-control bg-light" value="{{ current_user.email }}" readonly>
+                        <div class="form-text mt-1">Contact support to change your email address.</div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <form method="POST" action="{{ url_for('main.profile') }}">
+                        {{ form.hidden_tag() }} <div class="mb-3">
+                            {{ form.gender.label(class="form-label fw-bold") }}
+                            {{ form.gender(class="form-select") }}
+                            {% for error in form.gender.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.birth_date.label(class="form-label fw-bold") }}
+                            {{ form.birth_date(class="form-control", type="date") }}
+                            {% for error in form.birth_date.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.height.label(class="form-label fw-bold") }}
+                                <div class="input-group">
+                                    {{ form.height(class="form-control", placeholder="cm") }}
+                                    <span class="input-group-text">cm</span>
+                                </div>
+                                {% for error in form.height.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.weight.label(class="form-label fw-bold") }}
+                                <div class="input-group">
+                                    {{ form.weight(class="form-control", placeholder="kg") }}
+                                    <span class="input-group-text">kg</span>
+                                </div>
+                                {% for error in form.weight.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            {{ form.submit(class="btn btn-primary btn-lg shadow-sm") }}
+                        </div>
+                    </form>
                 </div>
-
-                <hr>
-
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-3">
-                        {{ form.gender.label(class="form-label") }}
-                        {{ form.gender(class="form-select") }}
-                        {% for error in form.gender.errors %}
-                            <span class="text-danger small">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.birth_date.label(class="form-label") }}
-                        {{ form.birth_date(class="form-control", type="date") }}
-                        {% for error in form.birth_date.errors %}
-                            <span class="text-danger small">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            {{ form.height.label(class="form-label") }}
-                            {{ form.height(class="form-control", placeholder="cm") }}
-                            {% for error in form.height.errors %}
-                                <span class="text-danger small">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            {{ form.weight.label(class="form-label") }}
-                            {{ form.weight(class="form-control", placeholder="kg") }}
-                            {% for error in form.weight.errors %}
-                                <span class="text-danger small">{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="d-grid mt-3">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
             </div>
         </div>
     </div>

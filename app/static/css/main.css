@@ -1,33 +1,52 @@
-/* Standard dark grey for better readability */
+/* --- 🎨 Global Styles --- */
 body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  background-color: #f9fafb; 
-  color: #111827; 
+  /* Using Inter as a primary font for a modern 'SaaS' look */
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f8f9fa; /* Light grey background to make white cards pop */
+  color: #212529; 
+  line-height: 1.6;
 }
 
-/* Centers the dashboard on large screens */
-main, .container {
-  max-width: 1100px; 
+/* --- 🏛️ Layout & Containers --- */
+.container {
+  max-width: 1140px; 
   margin: 0 auto;
 }
 
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px; 
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+/* Navbar specific styling */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0,0,0,.08);
 }
 
-/* THE CAGE: This limits the Chart.js height */
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* --- 🃏 Card Styling (The 'Pro' Look) --- */
+.card {
+  background: #ffffff;
+  border: none; /* Removing the old default border */
+  border-radius: 16px; 
+  margin-bottom: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Sublte hover effect for interactivity */
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* --- 📈 The Chart Cage (Responsive Fix) --- */
 .chart-container {
   position: relative;
-  height: 300px !important; 
+  /* Use viewport height to ensure it looks good on all screens */
+  height: 40vh; 
+  min-height: 320px;
   width: 100%;
-  margin-top: 16px;
+  margin: 20px 0;
 }
 
 canvas {
@@ -36,14 +55,47 @@ canvas {
   max-width: 100% !important;
 }
 
-h1, h2, h3 {
-  margin-top: 0;
-  font-weight: 600;
-  color: #1f2937;
+/* --- 📝 Typography & Forms --- */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 1rem;
 }
 
+.form-label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 0.6rem 0.8rem;
+}
+
+.form-control:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+/* --- 📱 Mobile Responsiveness --- */
 @media (max-width: 768px) {
-  .chart-container {
-    height: 250px; 
+  body {
+    padding: 10px;
   }
+  
+  .chart-container {
+    height: 300px; 
+  }
+
+  .card {
+    padding: 15px;
+  }
+}
+
+/* --- ✨ Helpers --- */
+.text-muted-small {
+  color: #718096;
+  font-size: 0.85rem;
 }
