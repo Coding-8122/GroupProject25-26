@@ -10,7 +10,13 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">RecoveryTracker</a>
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('main.dashboard') }}">
+                <svg width="32" height="32" viewBox="0 0 48 48" role="img">
+                    <rect x="0" y="0" width="48" height="48" rx="10" fill="#1D9E75"/>
+                    <polyline points="4,24 12,24 18,10 26,38 32,18 38,28 44,28" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Recovery<strong>Tracker</strong></span>
+            </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
