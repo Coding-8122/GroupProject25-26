@@ -1,14 +1,20 @@
+from urllib.parse import urlparse
 from flask import render_template, url_for, flash, redirect, request
 from flask_login import login_user, logout_user, current_user, login_required
+import sqlalchemy as sa
 from app.auth import auth_bp
 from app.auth.forms import RegistrationForm, LoginForm
 from app.models.user import User
 from app.extensions import db
 
+
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """Handles new user registration."""
+    # Prevent logged-in users from accessing the register page
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(
@@ -20,26 +26,44 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Account created! You can now log in.', 'success')
+
+        flash('Account created successfully! You can now log in.', 'success')
         return redirect(url_for('auth.login'))
+
     return render_template('auth/register.html', title='Register', form=form)
+
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """Handles user authentication and session creation."""
+    # Prevent logged-in users from accessing the login page
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
+
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        # Modern SQLAlchemy 2.0 query syntax
+        user = db.session.scalar(sa.select(User).filter_by(email=form.email.data))
+
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
+
+            # Secure the 'next' redirect against Open Redirect Vulnerabilities
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
+            if not next_page or urlparse(next_page).netloc != '':
+                next_page = url_for('main.dashboard')
+
+            return redirect(next_page)
         else:
-            flash('Login Unsuccessful. Please check email and password', 'danger')
+            flash('Login Unsuccessful. Please check your email and password.', 'danger')
+
     return render_template('auth/login.html', title='Login', form=form)
 
-@auth_bp.route('/logout')
+
+@auth_bp.route('/logout', methods=['POST'])
+@login_required
 def logout():
+    """Terminates the user session. POST-only to prevent CSRF logout attacks."""
     logout_user()
+    flash('You have been logged out.', 'info')
     return redirect(url_for('auth.login'))
