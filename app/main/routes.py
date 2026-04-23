@@ -98,3 +98,41 @@ def workouts():
         .order_by(WorkoutLog.date.desc()).all()
 
     return render_template('main/workouts.html', form=form, workouts=history)
+
+
+@main_bp.route('/workouts/edit/<int:workout_id>', methods=['GET', 'POST'])
+@login_required
+def edit_workout(workout_id):
+    """Allows a user to edit a previously logged workout."""
+    workout = WorkoutLog.query.get_or_404(workout_id)
+    if workout.user_id != current_user.id:
+        flash('Not authorised.', 'danger')
+        return redirect(url_for('main.workouts'))
+
+    form = WorkoutLogForm(obj=workout)
+    if form.validate_on_submit():
+        workout.exercise_name = form.exercise_name.data
+        workout.muscle_group = form.muscle_group.data
+        workout.intensity = form.intensity.data
+        workout.sets = form.sets.data
+        workout.reps = form.reps.data
+        workout.weight = form.weight.data
+        db.session.commit()
+        flash('Workout updated!', 'success')
+        return redirect(url_for('main.workouts'))
+
+    return render_template('main/edit_workout.html', form=form, workout=workout)
+
+
+@main_bp.route('/workouts/delete/<int:workout_id>', methods=['POST'])
+@login_required
+def delete_workout(workout_id):
+    """Allows a user to delete a previously logged workout."""
+    workout = WorkoutLog.query.get_or_404(workout_id)
+    if workout.user_id != current_user.id:
+        flash('Not authorised.', 'danger')
+        return redirect(url_for('main.workouts'))
+    db.session.delete(workout)
+    db.session.commit()
+    flash('Workout deleted.', 'success')
+    return redirect(url_for('main.workouts'))

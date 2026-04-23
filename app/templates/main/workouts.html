@@ -62,6 +62,7 @@
                                 <th>Muscle</th>
                                 <th>Volume</th>
                                 <th>RPE</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,6 +73,13 @@
                                 <td><span class="badge bg-info text-dark">{{ workout.muscle_group }}</span></td>
                                 <td>{{ workout.sets }} x {{ workout.reps }} ({{ workout.weight }}kg)</td>
                                 <td>{{ workout.intensity }}/10</td>
+                                <td>
+                                    <a href="{{ url_for('main.edit_workout', workout_id=workout.id) }}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <form method="POST" action="{{ url_for('main.delete_workout', workout_id=workout.id) }}" style="display:inline;">
+                                        {{ form.hidden_tag() }}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this workout?')">Delete</button>
+                                    </form>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
