@@ -1,7 +1,7 @@
 from flask import Blueprint
 
-# 1. Define the blueprint FIRST
+# Initialize the main application blueprint
 main_bp = Blueprint('main', __name__)
 
-# 2. Import routes at the BOTTOM to avoid circular dependency
+# Import routes at the bottom to avoid circular dependencies
 from app.main import routes

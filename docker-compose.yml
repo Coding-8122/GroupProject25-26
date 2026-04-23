@@ -4,25 +4,33 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: recovery_db
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DB_USER:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-recovery_db}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-recovery_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Security: Do NOT expose DB port to host network in production.
+    # Uncomment below only for local development debugging:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
 
   web:
     build: .
-    volumes:
-      - .:/app
     ports:
       - "5000:5000"
     environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/recovery_db
-      - SECRET_KEY=your-super-secret-key-here
-      - FLASK_APP=run.py
-      - FLASK_DEBUG=1
+      - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-recovery_db}
+      - SECRET_KEY=${SECRET_KEY}
+      - FLASK_DEBUG=0 # ЗАВЖДИ 0 ДЛЯ РЕЛІЗУ
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    # Security: Prevent privilege escalation in container
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   postgres_data:

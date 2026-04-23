@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField, SelectField, DateField
-from wtforms.validators import DataRequired, NumberRange, Optional
-from datetime import datetime
+from wtforms.validators import DataRequired, NumberRange, Optional, Length, Email
+from datetime import datetime, timezone
 
 class RecoveryLogForm(FlaskForm):
     sleep_hours = FloatField('Sleep Hours', validators=[DataRequired(), NumberRange(0, 24)])
@@ -11,20 +11,34 @@ class RecoveryLogForm(FlaskForm):
     submit = SubmitField('Log Recovery')
 
 class WorkoutLogForm(FlaskForm):
-    exercise_name = StringField('Exercise', validators=[DataRequired()])
+    exercise_name = StringField('Exercise', validators=[DataRequired(), Length(min=1, max=100)])
     muscle_group = SelectField('Muscle Group', choices=[
         ('Chest', 'Chest'), ('Back', 'Back'), ('Legs', 'Legs'),
         ('Shoulders', 'Shoulders'), ('Arms', 'Arms'), ('Core', 'Core'), ('Full Body', 'Full Body')
     ], validators=[DataRequired()])
     intensity = IntegerField('Intensity (RPE 1-10)', validators=[DataRequired(), NumberRange(1, 10)])
-    sets = IntegerField('Sets', validators=[DataRequired(), NumberRange(min=1)])
-    reps = IntegerField('Reps', validators=[DataRequired(), NumberRange(min=1)])
-    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0)])
+    sets = IntegerField('Sets', validators=[DataRequired(), NumberRange(min=1, max=100)])
+    reps = IntegerField('Reps', validators=[DataRequired(), NumberRange(min=1, max=500)])
+    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0, max=1000)])
     submit = SubmitField('Add Exercise')
 
 class BodyMetricsForm(FlaskForm):
     """Form for weight and body fat check-ins."""
-    date = DateField('Date', default=datetime.utcnow, validators=[DataRequired()])
+    date = DateField('Date', default=lambda: datetime.now(timezone.utc).date(), validators=[DataRequired()])
     weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0)])
     body_fat = FloatField('Body Fat %', validators=[Optional(), NumberRange(0, 100)])
     submit = SubmitField('Save Check-in')
+
+class EditProfileForm(FlaskForm):
+    """Form for users to update their personal details (Issue #130)."""
+    email = StringField('Email (read-only)', render_kw={'readonly': True})
+    gender = SelectField('Gender', choices=[
+        ('', 'Select...'), 
+        ('Male', 'Male'), 
+        ('Female', 'Female'), 
+        ('Other', 'Other')
+    ])
+    birth_date = DateField('Birth Date', validators=[Optional()])
+    height = FloatField('Height (cm)', validators=[DataRequired(), NumberRange(min=0, max=300)])
+    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0, max=1000)])
+    submit = SubmitField('Update Profile')
