@@ -32,3 +32,10 @@ def profile():
         form.weight.data = current_user.weight
 
     return render_template('user/profile.html', title='My Profile', form=form)
+
+
+@user_bp.route('/settings')
+@login_required
+def settings ():
+
+    return render_template('user/settings.html')
