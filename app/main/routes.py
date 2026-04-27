@@ -1,4 +1,5 @@
-from flask import render_template, url_for, flash, redirect, request, Response
+import bleach
+from flask import render_template, url_for, flash, redirect, request, Response, abort
 from flask_login import login_required, current_user
 from sqlalchemy import func
 from app.main import main_bp
@@ -10,6 +11,11 @@ from app.main.forms import RecoveryLogForm, WorkoutLogForm, BodyMetricsForm, Edi
 from datetime import datetime, timezone
 from app.utils.recovery_calculations import calculate_recovery_hours
 from app.utils.export_utils import generate_workout_csv
+
+
+def _sanitize(text: str) -> str:
+    """Strip all HTML tags from user-supplied text to prevent stored XSS."""
+    return bleach.clean(text, tags=[], strip=True).strip()
 
 
 @main_bp.route('/', methods=['GET', 'POST'])
@@ -77,19 +83,19 @@ def metrics():
 
     # 1. History for the data table (Newest first)
     history = BodyMetric.query.filter_by(user_id=current_user.id).order_by(BodyMetric.date.desc()).all()
-    
+
     # 2. Data for the Progress Chart (Oldest first for chronological order)
     chart_data = BodyMetric.query.filter_by(user_id=current_user.id).order_by(BodyMetric.date.asc()).all()
     labels = [m.date.strftime('%d %b') for m in chart_data] # Format: 15 Apr
     values = [m.weight for m in chart_data]
-    
+
     # 3. Quick Insight: Total weight change since tracking began
     weight_change = 0
     if len(chart_data) >= 2:
         weight_change = round(chart_data[-1].weight - chart_data[0].weight, 2)
 
-    return render_template('main/metrics.html', 
-                           form=form, 
+    return render_template('main/metrics.html',
+                           form=form,
                            history=history,
                            labels=labels,
                            values=values,
@@ -104,7 +110,7 @@ def workouts():
     if form.validate_on_submit():
         new_workout = WorkoutLog(
             user_id=current_user.id,
-            exercise_name=form.exercise_name.data,
+            exercise_name=_sanitize(form.exercise_name.data),
             muscle_group=form.muscle_group.data,
             intensity=form.intensity.data,
             sets=form.sets.data,
@@ -128,42 +134,45 @@ def export_workouts():
     """Generates and returns a CSV file of the user's full workout history."""
     workouts = WorkoutLog.query.filter_by(user_id=current_user.id) \
         .order_by(WorkoutLog.date.desc()).all()
-    
+
     if not workouts:
         flash('No workout data available to export.', 'warning')
         return redirect(url_for('main.workouts'))
 
     csv_body = generate_workout_csv(workouts)
-    
-    return Response(
+
+    response = Response(
         csv_body,
         mimetype="text/csv",
         headers={
-            "Content-disposition": "attachment; filename=workout_history.csv",
+            "Content-Disposition": "attachment; filename=workout_history.csv",
         }
     )
+    # Prevent browsers/proxies from caching the export
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 @main_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     """Handles user profile updates (Issue #130)."""
     form = EditProfileForm()
-    
+
     if form.validate_on_submit():
         current_user.gender = form.gender.data
         current_user.birth_date = form.birth_date.data
         current_user.height = form.height.data
         current_user.weight = form.weight.data
-        
+
         db.session.commit()
         flash('Your profile has been updated!', 'success')
         return redirect(url_for('main.profile'))
-        
+
     elif request.method == 'GET':
         form.email.data = current_user.email
         form.gender.data = current_user.gender
         form.birth_date.data = current_user.birth_date
         form.height.data = current_user.height
         form.weight.data = current_user.weight
-        
+
     return render_template('main/profile.html', title='Profile Settings', form=form)

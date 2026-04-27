@@ -22,8 +22,13 @@ class User(db.Model, UserMixin):
     logs = db.relationship('RecoveryLog', backref='owner', lazy='dynamic', cascade="all, delete-orphan")
 
     def set_password(self, password):
-        """Hashes the password for storage."""
-        self.password_hash = generate_password_hash(password)
+        """
+        Hashes the password for storage.
+        Uses scrypt (Werkzeug default ≥ 3.x) with strong parameters.
+        """
+        self.password_hash = generate_password_hash(
+            password, method='scrypt', salt_length=16
+        )
 
     def check_password(self, password):
         """Checks the provided password against the hash."""
