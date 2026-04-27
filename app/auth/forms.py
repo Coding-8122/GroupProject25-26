@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FloatField, DateField, BooleanField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, Length
 import sqlalchemy as sa
 from app.models.user import User
 from app.extensions import db
@@ -9,7 +9,7 @@ from app.extensions import db
 class RegistrationForm(FlaskForm):
     """Form for user registration with robust validation."""
     email = StringField('Email', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=8, message="Password must be at least 8 characters.")])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), EqualTo('password')])
 

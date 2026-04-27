@@ -19,4 +19,5 @@ class RecoveryLog(db.Model):
     recovery_estimated = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
-        return f'<RecoveryLog {self.date} - User {self.user_id}>'
+        # Privacy: Do not expose user_id in logs/tracebacks
+        return f'<RecoveryLog {self.date}>'

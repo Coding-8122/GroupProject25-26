@@ -14,9 +14,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    # Security: Do NOT expose DB port to host network in production.
+    # Uncomment below only for local development debugging:
+    # ports:
+    #   - "127.0.0.1:5432:5432"
 
   web:
     build: .
+    ports:
+      - "5000:5000"
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-recovery_db}
       - SECRET_KEY=${SECRET_KEY}
@@ -24,6 +30,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # Security: Prevent privilege escalation in container
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   postgres_data:
