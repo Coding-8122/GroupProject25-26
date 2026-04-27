@@ -21,7 +21,7 @@ from app.utils.export_utils import generate_workout_csv
 
 
 def _sanitize(text: str) -> str:
-    """Strip HTML tags to prevent XSS."""
+    """Strip HTML tags to prevent XSS (Security Enhancement)."""
     return bleach.clean(text, tags=[], strip=True).strip()
 
 
@@ -29,6 +29,7 @@ def _sanitize(text: str) -> str:
 @main_bp.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
+    """Main dashboard with recovery status and charts."""
     form = RecoveryLogForm()
     today = datetime.now(timezone.utc).date()
     last_workout = (
@@ -45,6 +46,8 @@ def dashboard():
 
         log.sleep_hours = form.sleep_hours.data
         log.muscle_soreness = form.muscle_soreness.data
+
+        # Max intensity for today's recovery calculation
         max_int = (
             db.session.query(func.max(WorkoutLog.intensity))
             .filter(WorkoutLog.user_id == current_user.id, WorkoutLog.date == today)
@@ -55,7 +58,7 @@ def dashboard():
             max_int or 5, log.muscle_soreness, log.sleep_hours
         )
         db.session.commit()
-        flash("Metrics updated.", "success")
+        flash("Recovery metrics updated.", "success")
         return redirect(url_for("main.dashboard"))
 
     recent_logs = (
@@ -72,7 +75,7 @@ def dashboard():
 @main_bp.route("/metrics", methods=["GET", "POST"])
 @login_required
 def metrics():
-    """Handles weight tracking and syncs user profile."""
+    """Handles weight tracking and profile syncing."""
     form = BodyMetricsForm()
     if form.validate_on_submit():
         new_metric = BodyMetric(
@@ -111,16 +114,17 @@ def metrics():
 @login_required
 @limiter.limit("60 per minute")
 def api_weight():
-    metrics = (
+    """Dynamic API for Chart.js weight progress."""
+    metrics_list = (
         BodyMetric.query.filter_by(user_id=current_user.id)
         .order_by(BodyMetric.date.asc())
         .all()
     )
     return jsonify(
         {
-            "labels": [m.date.strftime("%b %d") for m in metrics],
-            "weight": [m.weight for m in metrics],
-            "fat": [m.body_fat for m in metrics if m.body_fat is not None],
+            "labels": [m.date.strftime("%b %d") for m in metrics_list],
+            "weight": [m.weight for m in metrics_list],
+            "fat": [m.body_fat for m in metrics_list if m.body_fat is not None],
         }
     )
 
@@ -128,9 +132,10 @@ def api_weight():
 @main_bp.route("/api/stats/volume")
 @login_required
 def api_volume():
-    workouts = WorkoutLog.query.filter_by(user_id=current_user.id).all()
+    """Dynamic API for training volume by muscle group."""
+    workouts_list = WorkoutLog.query.filter_by(user_id=current_user.id).all()
     vol = defaultdict(float)
-    for w in workouts:
+    for w in workouts_list:
         vol[w.muscle_group] += w.sets * w.reps * w.weight
     return jsonify({"labels": list(vol.keys()), "data": list(vol.values())})
 
@@ -138,6 +143,7 @@ def api_volume():
 @main_bp.route("/workouts", methods=["GET", "POST"])
 @login_required
 def workouts():
+    """Handles workout logging with XSS protection."""
     form = WorkoutLogForm()
     if form.validate_on_submit():
         nw = WorkoutLog(
@@ -153,6 +159,7 @@ def workouts():
         db.session.commit()
         flash("Workout logged successfully.", "success")
         return redirect(url_for("main.workouts"))
+
     history = (
         WorkoutLog.query.filter_by(user_id=current_user.id)
         .order_by(WorkoutLog.date.desc())
@@ -161,10 +168,48 @@ def workouts():
     return render_template("main/workouts.html", form=form, workouts=history)
 
 
+@main_bp.route("/workouts/edit/<int:workout_id>", methods=["GET", "POST"])
+@login_required
+def edit_workout(workout_id):
+    """Teammate's feature: Edit existing logs."""
+    workout = WorkoutLog.query.get_or_404(workout_id)
+    if workout.user_id != current_user.id:
+        flash("Not authorised.", "danger")
+        return redirect(url_for("main.workouts"))
+
+    form = WorkoutLogForm(obj=workout)
+    if form.validate_on_submit():
+        workout.exercise_name = _sanitize(form.exercise_name.data)
+        workout.muscle_group = form.muscle_group.data
+        workout.intensity = form.intensity.data
+        workout.sets = form.sets.data
+        workout.reps = form.reps.data
+        workout.weight = form.weight.data
+        db.session.commit()
+        flash("Workout updated!", "success")
+        return redirect(url_for("main.workouts"))
+
+    return render_template("main/edit_workout.html", form=form, workout=workout)
+
+
+@main_bp.route("/workouts/delete/<int:workout_id>", methods=["POST"])
+@login_required
+def delete_workout(workout_id):
+    """Teammate's feature: Delete logs."""
+    workout = WorkoutLog.query.get_or_404(workout_id)
+    if workout.user_id != current_user.id:
+        flash("Not authorised.", "danger")
+        return redirect(url_for("main.workouts"))
+    db.session.delete(workout)
+    db.session.commit()
+    flash("Workout deleted.", "success")
+    return redirect(url_for("main.workouts"))
+
+
 @main_bp.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
-    """FIX: Added missing profile endpoint for 'main.profile'."""
+    """User profile management."""
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.height = form.height.data
@@ -182,15 +227,17 @@ def profile():
 @main_bp.route("/export/workouts")
 @login_required
 def export_workouts():
-    workouts = (
+    """Secure CSV export of history."""
+    workouts_to_export = (
         WorkoutLog.query.filter_by(user_id=current_user.id)
         .order_by(WorkoutLog.date.desc())
         .all()
     )
-    if not workouts:
-        flash("No data available.", "warning")
+    if not workouts_to_export:
+        flash("No workout data available to export.", "warning")
         return redirect(url_for("main.workouts"))
-    csv_body = generate_workout_csv(workouts)
+
+    csv_body = generate_workout_csv(workouts_to_export)
     return Response(
         csv_body,
         mimetype="text/csv",
