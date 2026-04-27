@@ -9,26 +9,20 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    # Using lambda ensures the time is evaluated at insertion
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
-    # Personal metrics
     gender = db.Column(db.String(20))
     birth_date = db.Column(db.Date)
     height = db.Column(db.Float) # cm
     weight = db.Column(db.Float) # kg
 
-    # Relationship to recovery logs
-    logs = db.relationship('RecoveryLog', backref='owner', lazy='dynamic', cascade="all, delete-orphan")
-
     def set_password(self, password):
-        """Hashes the password for storage."""
-        self.password_hash = generate_password_hash(password)
+        """Hashes the password for secure storage."""
+        self.password_hash = generate_password_hash(password, method='scrypt')
 
     def check_password(self, password):
-        """Checks the provided password against the hash."""
+        """Verifies the password against the stored hash."""
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        # Privacy: Do not expose user ID or email in logs/tracebacks
-        return '<User [REDACTED]>'
+        return f'<User {self.email}>'
