@@ -5,6 +5,7 @@ __pycache__/
 instance/
 *.db
 *.log
-uv.lock
 .idea
 .pytest_cache/
+.coverage
+htmlcov/

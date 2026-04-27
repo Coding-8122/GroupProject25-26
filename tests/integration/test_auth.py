@@ -31,7 +31,7 @@ def test_login_logout_flow(client, app):
         db.session.add(u)
         db.session.commit()
 
-    # Login
+    # 1. Login (POST)
     res = client.post(
         "/auth/login",
         data={"email": "login@test.com", "password": "pass"},
@@ -39,6 +39,7 @@ def test_login_logout_flow(client, app):
     )
     assert b"Logout" in res.data
 
-    # Logout
-    res = client.get("/auth/logout", follow_redirects=True)
+    # 2. Logout (Must be POST now for security)
+    res = client.post("/auth/logout", follow_redirects=True)
+    assert res.status_code == 200
     assert b"Login" in res.data
