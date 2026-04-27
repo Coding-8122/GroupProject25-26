@@ -3,33 +3,41 @@ from app.models.user import User
 from app.extensions import db
 
 
-def test_user_registration(client, app):
-    """Test user registration endpoint using the correct auth blueprint prefix."""
-    response = client.post('/auth/register', data={
-        'email': 'newuser@example.com',
-        'password': 'password123',
-        'confirm_password': 'password123'
-    }, follow_redirects=True)
-
+def test_registration_flow(client, app):
+    """Test user registration with a strong password."""
+    response = client.post(
+        "/auth/register",
+        data={
+            "email": "new@example.com",
+            "password": "Password123!",  # Strong password
+            "confirm_password": "Password123!",
+            "height": 180,
+            "weight": 75,
+            "birth_date": "1990-01-01",
+        },
+        follow_redirects=True,
+    )
     assert response.status_code == 200
-
     with app.app_context():
-        user = User.query.filter_by(email='newuser@example.com').first()
-        assert user is not None
+        assert User.query.filter_by(email="new@example.com").first() is not None
 
 
-def test_user_login(client, app):
-    """Test user login endpoint using the correct auth blueprint prefix."""
+def test_login_logout_flow(client, app):
+    """Test authenticated session cycle."""
     with app.app_context():
-        user = User(email="login@example.com")
-        user.set_password("mypassword")
-        db.session.add(user)
+        u = User(email="login@test.com")
+        u.set_password("Password123!")
+        db.session.add(u)
         db.session.commit()
 
-    response = client.post('/auth/login', data={
-        'email': 'login@example.com',
-        'password': 'mypassword'
-    }, follow_redirects=True)
+    # Login
+    res = client.post(
+        "/auth/login",
+        data={"email": "login@test.com", "password": "Password123!"},
+        follow_redirects=True,
+    )
+    assert b"Logout" in res.data
 
-    assert response.status_code == 200
-    assert b'Logout' in response.data
+    # Logout (POST-only)
+    res = client.post("/auth/logout", follow_redirects=True)
+    assert b"Login" in res.data

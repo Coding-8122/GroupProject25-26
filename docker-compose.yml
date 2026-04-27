@@ -7,15 +7,18 @@ services:
       POSTGRES_USER: ${DB_USER:-user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_DB: ${DB_NAME:-recovery_db}
+    ports:
+      - "5432:5432" # Keep for local PowerShell dev/tests
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-recovery_db}"]
       interval: 5s
-      timeout: 5s
       retries: 5
-    # Security: Do NOT expose DB port to host network in production.
-    # Uncomment below only for local development debugging:
-    # ports:
-    #   - "127.0.0.1:5432:5432"
 
   web:
     build: .
@@ -24,13 +27,15 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-recovery_db}
       - SECRET_KEY=${SECRET_KEY}
-      - FLASK_DEBUG=0 # ЗАВЖДИ 0 ДЛЯ РЕЛІЗУ
+      - FLASK_ENV=${FLASK_ENV:-production}
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
     depends_on:
       db:
         condition: service_healthy
-    # Security: Prevent privilege escalation in container
-    security_opt:
-      - no-new-privileges:true
 
 volumes:
   postgres_data:

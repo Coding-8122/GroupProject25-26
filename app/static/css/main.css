@@ -42,17 +42,15 @@ body {
 /* --- 📈 The Chart Cage (Responsive Fix) --- */
 .chart-container {
   position: relative;
-  /* Use viewport height to ensure it looks good on all screens */
   height: 40vh; 
   min-height: 320px;
   width: 100%;
   margin: 20px 0;
 }
 
+/* Let Chart.js control the canvas directly */
 canvas {
   display: block;
-  max-height: 100% !important;
-  max-width: 100% !important;
 }
 
 /* --- 📝 Typography & Forms --- */
