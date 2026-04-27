@@ -1,81 +1,75 @@
+import logging
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_talisman import Talisman
-from flask_wtf.csrf import CSRFProtect  # NEW: Import CSRF protection
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import Config
 from app.extensions import db, migrate, login_manager
 
-# Initialize CSRF protection object globally
+# Initialize security extensions globally to prevent circular imports
 csrf = CSRFProtect()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "60 per hour"],
+    storage_uri="memory://",
+)
 
-_is_production = os.environ.get('FLASK_ENV') == 'production'
-
-# Content Security Policy — whitelists only the CDNs this app actually uses
+# Content Security Policy (CSP) for Production
 _CSP = {
-    'default-src': '\'self\'',
-    'script-src': [
-        '\'self\'',
-        'https://cdn.jsdelivr.net',
-    ],
-    'style-src': [
-        '\'self\'',
-        'https://cdn.jsdelivr.net',
-        '\'unsafe-inline\'',   # Required by Bootstrap
-    ],
-    'img-src': '\'self\' data:',
-    'font-src': [
-        '\'self\'',
-        'https://cdn.jsdelivr.net',
-    ],
+    'default-src': "'self'",
+    'script-src': ["'self'", 'https://cdn.jsdelivr.net'],
+    'style-src': ["'self'", 'https://cdn.jsdelivr.net', "'unsafe-inline'"],
+    'img-src': ["'self'", 'data:'],
+    'font-src': ["'self'", 'https://cdn.jsdelivr.net'],
+    'object-src': "'none'",
 }
 
+# Security Event Logger configuration
+security_log = logging.getLogger('security')
+security_log.setLevel(logging.INFO)
+if not security_log.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter('%(asctime)s SECURITY %(levelname)s: %(message)s'))
+    security_log.addHandler(_handler)
+
 def create_app(config_class=Config, test_config=None):
+    """Application factory for RecoveryTracker."""
     app = Flask(__name__)
     app.config.from_object(config_class)
 
     if test_config:
         app.config.update(test_config)
 
-    # 🛠️ THE FIX: Disable Talisman's strictness during development
-    if os.environ.get('FLASK_ENV') == 'development' or not _is_production:
-        Talisman(app, content_security_policy=None, force_https=False)
-    else:
-        Talisman(
-            app,
-            content_security_policy=_CSP,
-            force_https=True,
-            content_security_policy_nonce_in=['script-src'],
-            session_cookie_secure=True,
-            strict_transport_security=True,
-        )
-
-    # Initialize Extensions
+    # 1. Initialize Core Extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    csrf.init_app(app)  # NEW: Activate CSRF protection
+    csrf.init_app(app)
+    limiter.init_app(app)
 
-    login_manager.login_view = 'auth.login'
-    login_manager.login_message_category = 'info'
+    # 2. Security Hardening (Talisman)
+    is_prod = os.environ.get('FLASK_ENV') == 'production'
+    if is_prod and not app.config.get('TESTING'):
+        Talisman(app, content_security_policy=_CSP, force_https=True, session_cookie_secure=True)
+    else:
+        Talisman(app, content_security_policy=None, force_https=False)
 
-    # Register Blueprints
+    # 3. Register Blueprints
     from app.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
-
     from app.main import main_bp
     app.register_blueprint(main_bp)
-
     from app.user import user_bp
     app.register_blueprint(user_bp, url_prefix='/user')
 
-    # ---- Security: Custom Error Handlers ----
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return render_template('errors/404.html'), 404
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        db.session.rollback()  # Prevent broken transactions from persisting
-        return render_template('errors/500.html'), 500
+    # 4. Defensive HTTP Headers
+    @app.after_request
+    def set_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        if hasattr(request, 'endpoint') and request.endpoint and not request.endpoint.startswith('static'):
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        return response
 
     return app

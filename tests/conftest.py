@@ -5,21 +5,21 @@ from app.models.user import User
 
 @pytest.fixture
 def app():
-    """Create and configure a new app instance for each test."""
     app = create_app(
         test_config={
             "TESTING": True,
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
             "WTF_CSRF_ENABLED": False,
             "RATELIMIT_ENABLED": False,
+            "SESSION_COOKIE_SECURE": False,
+            "REMEMBER_COOKIE_SECURE": False,
         }
     )
-
     with app.app_context():
         db.create_all()
         yield app
         db.session.remove()
-        db.drop_all()
+        db.engine.dispose()
 
 @pytest.fixture
 def client(app):
@@ -29,7 +29,7 @@ def client(app):
 def authenticated_client(client, app):
     with app.app_context():
         user = User(email="test@example.com")
-        user.set_password("password123")
+        user.set_password("Password123!") # Must be strong
         db.session.add(user)
         db.session.commit()
         user_id = user.id

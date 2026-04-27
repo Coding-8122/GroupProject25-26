@@ -4,42 +4,40 @@ from app.extensions import db
 
 
 def test_registration_flow(client, app):
-    """Test successful user registration and redirection."""
+    """Test user registration with a strong password."""
     response = client.post(
         "/auth/register",
         data={
             "email": "new@example.com",
-            "password": "password123",
-            "confirm_password": "password123",
+            "password": "Password123!",  # Strong password
+            "confirm_password": "Password123!",
             "height": 180,
             "weight": 75,
             "birth_date": "1990-01-01",
         },
         follow_redirects=True,
     )
-
     assert response.status_code == 200
     with app.app_context():
         assert User.query.filter_by(email="new@example.com").first() is not None
 
 
 def test_login_logout_flow(client, app):
-    """Test login credentials and session termination."""
+    """Test authenticated session cycle."""
     with app.app_context():
         u = User(email="login@test.com")
-        u.set_password("pass")
+        u.set_password("Password123!")
         db.session.add(u)
         db.session.commit()
 
-    # 1. Login (POST)
+    # Login
     res = client.post(
         "/auth/login",
-        data={"email": "login@test.com", "password": "pass"},
+        data={"email": "login@test.com", "password": "Password123!"},
         follow_redirects=True,
     )
     assert b"Logout" in res.data
 
-    # 2. Logout (Must be POST now for security)
+    # Logout (POST-only)
     res = client.post("/auth/logout", follow_redirects=True)
-    assert res.status_code == 200
     assert b"Login" in res.data

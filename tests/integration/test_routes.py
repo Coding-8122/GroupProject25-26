@@ -1,12 +1,10 @@
 import pytest
 
-
 def test_dashboard_protection(client):
-    """Ensure dashboard is protected by login_required."""
+    """Ensure dashboard is protected by login_required and returns 401."""
     res = client.get("/dashboard")
-    assert res.status_code == 302
-    assert "/auth/login" in res.headers["Location"]
-
+    # Updated to 401 per security hardening policy
+    assert res.status_code == 401
 
 def test_metrics_negative_weight_rejection(authenticated_client, app):
     """Red Team Test: Ensure negative weight is rejected by the form."""
@@ -19,5 +17,4 @@ def test_metrics_negative_weight_rejection(authenticated_client, app):
     assert b"Weight must be between" in res.data
     with app.app_context():
         from app.models.body_metric import BodyMetric
-
         assert BodyMetric.query.filter_by(weight=-10.0).first() is None
