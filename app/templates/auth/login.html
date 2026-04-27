@@ -10,10 +10,16 @@
                     <div class="mb-3">
                         {{ form.email.label(class="form-label") }}
                         {{ form.email(class="form-control") }}
+                        {% for error in form.email.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
                     </div>
                     <div class="mb-3">
                         {{ form.password.label(class="form-label") }}
                         {{ form.password(class="form-control") }}
+                        {% for error in form.password.errors %}
+                            <span class="text-danger small">{{ error }}</span>
+                        {% endfor %}
                     </div>
                     <div class="mb-3 form-check">
                         {{ form.remember(class="form-check-input") }}

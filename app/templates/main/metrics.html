@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Body Metrics & Insights{% endblock %}
 
 {% block content %}
@@ -21,6 +20,7 @@
                 <div class="mb-3">
                     {{ form.date.label(class="form-label small fw-bold") }}
                     {{ form.date(class="form-control", type="date") }}
+                    {% for error in form.date.errors %}<span class="text-danger small">{{ error }}</span>{% endfor %}
                 </div>
                 <div class="mb-3">
                     {{ form.weight.label(class="form-label small fw-bold") }}
@@ -28,6 +28,7 @@
                         {{ form.weight(class="form-control", placeholder="e.g. 75.5") }}
                         <span class="input-group-text">kg</span>
                     </div>
+                    {% for error in form.weight.errors %}<span class="text-danger small">{{ error }}</span>{% endfor %}
                 </div>
                 <div class="mb-3">
                     {{ form.body_fat.label(class="form-label small fw-bold") }}
@@ -35,6 +36,7 @@
                         {{ form.body_fat(class="form-control", placeholder="e.g. 15.0") }}
                         <span class="input-group-text">%</span>
                     </div>
+                    {% for error in form.body_fat.errors %}<span class="text-danger small">{{ error }}</span>{% endfor %}
                 </div>
                 <div class="mt-4">
                     {{ form.submit(class="btn btn-primary w-100 shadow-sm") }}
@@ -44,23 +46,20 @@
     </div>
 
     <div class="col-md-8">
-        <section class="card p-3 mb-4 shadow-sm border-0">
-            <h2 class="h5 mb-3">Weight Trend</h2>
-            
+        <section class="card p-3 mb-4 shadow-sm">
+            <h2 class="h5 mb-3">Weight Over Time</h2>
             <div class="chart-container">
-                <div id="chartData" 
-                     data-labels='{{ labels|tojson|safe }}' 
-                     data-values='{{ values|tojson|safe }}' 
-                     style="display: none;"></div>
-                
-                <canvas id="weightChart"></canvas>
+                <canvas id="weightOverTimeChart"></canvas>
             </div>
+            <p class="text-muted small mt-2" id="weightNoData" style="display: none;">No data yet.</p>
+        </section>
 
-            {% if not values %}
-            <div class="text-center py-5 text-muted">
-                <p>Add your first check-in to see your progress chart!</p>
+        <section class="card p-3 shadow-sm">
+            <h2 class="h5 mb-3">Body Fat Percentage Over Time</h2>
+            <div class="chart-container">
+                <canvas id="bodyFatOverTimeChart"></canvas>
             </div>
-            {% endif %}
+            <p class="text-muted small mt-2" id="bodyFatNoData" style="display: none;">No data yet.</p>
         </section>
     </div>
 </div>
@@ -95,47 +94,10 @@
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ csp_nonce() }}">
-    document.addEventListener('DOMContentLoaded', function() {
-        const weightCtx = document.getElementById('weightChart').getContext('2d');
-        const dataHolder = document.getElementById('chartData');
-
-        // We pull the data out of the HTML attributes safely
-        const weightLabels = JSON.parse(dataHolder.dataset.labels);
-        const weightValues = JSON.parse(dataHolder.dataset.values);
-
-        new Chart(weightCtx, {
-            type: 'line',
-            data: {
-                labels: weightLabels,
-                datasets: [{
-                    label: 'Weight (kg)',
-                    data: weightValues,
-                    borderColor: '#0d6efd',
-                    backgroundColor: 'rgba(13, 110, 253, 0.05)',
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: { 
-                        beginAtZero: false,
-                        grid: { color: '#f0f0f0' }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-    });
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      if (typeof renderWeightOverTime === "function") renderWeightOverTime();
+      if (typeof renderBodyFatOverTime === "function") renderBodyFatOverTime();
+  });
 </script>
 {% endblock %}

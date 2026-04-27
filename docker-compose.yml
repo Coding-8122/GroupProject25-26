@@ -7,6 +7,8 @@ services:
       POSTGRES_USER: ${DB_USER:-user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
       POSTGRES_DB: ${DB_NAME:-recovery_db}
+    ports:
+      - "5432:5432" # Required for local PowerShell scripts to connect
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-user} -d ${DB_NAME:-recovery_db}"]
       interval: 5s
@@ -24,7 +26,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-recovery_db}
       - SECRET_KEY=${SECRET_KEY}
-      - FLASK_DEBUG=0 # ЗАВЖДИ 0 ДЛЯ РЕЛІЗУ
+      - FLASK_DEBUG=0
     depends_on:
       db:
         condition: service_healthy
