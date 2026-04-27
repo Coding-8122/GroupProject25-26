@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SubmitField, SelectField, DateField
-from wtforms.validators import DataRequired, NumberRange, Optional
+from wtforms.validators import DataRequired, NumberRange, Optional, Length
 from datetime import datetime, timezone
 
 class RecoveryLogForm(FlaskForm):
@@ -23,7 +23,7 @@ class RecoveryLogForm(FlaskForm):
     submit = SubmitField('Log Recovery')
 
 class WorkoutLogForm(FlaskForm):
-    exercise_name = StringField('Exercise', validators=[DataRequired()])
+    exercise_name = StringField('Exercise', validators=[DataRequired(), Length(min=1, max=100)])
     muscle_group = SelectField('Muscle Group', choices=[
         ('Chest', 'Chest'), ('Back', 'Back'), ('Legs', 'Legs'),
         ('Shoulders', 'Shoulders'), ('Arms', 'Arms'), ('Core', 'Core'), ('Full Body', 'Full Body')
@@ -34,15 +34,15 @@ class WorkoutLogForm(FlaskForm):
     ])
     sets = IntegerField('Sets', validators=[
         DataRequired(),
-        NumberRange(min=1, message="Sets must be at least 1")
+        NumberRange(min=1, max=100, message="Sets must be between 1 and 100")
     ])
     reps = IntegerField('Reps', validators=[
         DataRequired(),
-        NumberRange(min=1, message="Reps must be at least 1")
+        NumberRange(min=1, max=500, message="Reps must be between 1 and 500")
     ])
     weight = FloatField('Weight (kg)', validators=[
         DataRequired(),
-        NumberRange(min=0, message="Weight must be positive")
+        NumberRange(min=0, max=1000, message="Weight must be between 0 and 1000")
     ])
     submit = SubmitField('Add Exercise')
 
@@ -57,3 +57,14 @@ class BodyMetricsForm(FlaskForm):
         NumberRange(0, 100, message="Body fat must be between 0 and 100")
     ])
     submit = SubmitField('Save Check-in')
+
+class EditProfileForm(FlaskForm):
+    """Form for users to update their personal details."""
+    email = StringField('Email (read-only)', render_kw={'readonly': True})
+    gender = SelectField('Gender', choices=[
+        ('', 'Select...'), ('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')
+    ])
+    birth_date = DateField('Birth Date', validators=[Optional()])
+    height = FloatField('Height (cm)', validators=[DataRequired(), NumberRange(min=0, max=300)])
+    weight = FloatField('Weight (kg)', validators=[DataRequired(), NumberRange(min=0, max=1000)])
+    submit = SubmitField('Update Profile')

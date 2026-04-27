@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 from flask import render_template, url_for, flash, redirect, request
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import sqlalchemy as sa
@@ -22,7 +22,6 @@ def register():
 
     form = RegistrationForm()
     if form.validate_on_submit():
-        # Security: Prevent account enumeration
         existing_user = db.session.scalar(sa.select(User).filter_by(email=form.email.data))
         if existing_user:
             flash('If this email is registered, you will receive a notification.', 'info')
@@ -43,7 +42,6 @@ def register():
 
     return render_template('auth/register.html', title='Register', form=form)
 
-
 @auth_bp.route('/login', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")
 def login():
@@ -54,25 +52,21 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.scalar(sa.select(User).filter_by(email=form.email.data))
-
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember.data)
-
-            # Security: Prevent Open Redirect attacks
             next_page = request.args.get('next')
             if not next_page or urlparse(next_page).netloc != '':
                 next_page = url_for('main.dashboard')
-
             return redirect(next_page)
         else:
             flash('Login Unsuccessful. Please check email and password.', 'danger')
 
     return render_template('auth/login.html', title='Login', form=form)
 
-
-@auth_bp.route('/logout')
+@auth_bp.route('/logout', methods=['POST'])
+@login_required
 def logout():
-    """Terminates the user session."""
+    """Terminates the user session. POST-only to prevent CSRF logout attacks."""
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('auth.login'))
