@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: recovery_db
+    ports:
+      - "5432:5432"
+    # Ensure DB is fully ready before the web app tries to connect
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d recovery_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/recovery_db
+      - SECRET_KEY=your-super-secret-key-here
+      - FLASK_APP=run.py
+      - FLASK_DEBUG=1
+    depends_on:
+      db:
+        # Wait for the healthcheck to pass, not just the container to start
+        condition: service_healthy
+
+volumes:
+  postgres_data:

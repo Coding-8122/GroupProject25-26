@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Workouts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h4 mb-3">Add Exercise</h2>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.exercise_name.label(class="form-label") }}
+                        {{ form.exercise_name(class="form-control", placeholder="e.g. Bench Press") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.muscle_group.label(class="form-label") }}
+                        {{ form.muscle_group(class="form-select") }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.intensity.label(class="form-label") }}
+                        {{ form.intensity(class="form-control", placeholder="RPE 1-10") }}
+                        <div class="form-text small">1 = very easy, 10 = max effort</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            {{ form.sets.label(class="form-label") }}
+                            {{ form.sets(class="form-control") }}
+                        </div>
+                        <div class="col-6 mb-3">
+                            {{ form.reps.label(class="form-label") }}
+                            {{ form.reps(class="form-control") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.weight.label(class="form-label") }}
+                        {{ form.weight(class="form-control") }}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h4 mb-3">Recent Exercises</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Exercise</th>
+                                <th>Muscle</th>
+                                <th>Volume</th>
+                                <th>RPE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for workout in workouts %}
+                            <tr>
+                                <td>{{ workout.date.strftime('%d %b') }}</td>
+                                <td>{{ workout.exercise_name }}</td>
+                                <td><span class="badge bg-info text-dark">{{ workout.muscle_group }}</span></td>
+                                <td>{{ workout.sets }} x {{ workout.reps }} ({{ workout.weight }}kg)</td>
+                                <td>{{ workout.intensity }}/10</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
