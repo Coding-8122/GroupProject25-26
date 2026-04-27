@@ -25,15 +25,14 @@ main, .container {
 /* THE CAGE: This limits the Chart.js height */
 .chart-container {
   position: relative;
-  height: 300px !important; 
+  height: 300px; /* Removed !important */
   width: 100%;
   margin-top: 16px;
 }
 
+/* Let Chart.js control the canvas directly */
 canvas {
   display: block;
-  max-height: 100% !important;
-  max-width: 100% !important;
 }
 
 h1, h2, h3 {
@@ -46,4 +45,398 @@ h1, h2, h3 {
   .chart-container {
     height: 250px; 
   }
+}
+
+
+/*  auth pages */
+
+.auth-wrapper {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 15px;
+  width: 100%;
+}
+
+.auth-wrapper .row {
+  width: 100%;
+  margin: 0;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 620px;
+  border-radius: 18px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card .card-body {
+  width: 100%;
+}
+
+.auth-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.auth-subtitle {
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-input {
+  min-height: 52px;
+  width: 100%;
+  border-radius: 10px;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+}
+
+.auth-input:focus {
+  border-color: #2d7d73;
+  box-shadow: 0 0 0 0.15rem rgba(45, 125, 115, 0.15);
+}
+
+.auth-btn {
+  min-height: 52px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #2d7d73;
+  border: none;
+}
+
+.auth-btn:hover {
+  background: #1b5e55;
+}
+
+.auth-switch-text {
+  color: #374151;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.auth-link {
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 4px;
+  color: #2d7d73;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+  color: #1b5e55;
+}
+
+.form-check-label {
+  color: #374151;
+}
+
+.auth-card .row {
+  align-items: end;
+}
+
+.auth-card .row .auth-input {
+  width: 100%;
+}
+
+
+/* settings page */
+
+.settings-wrapper {
+  min-height: calc(100vh - 90px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 15px;
+}
+
+.settings-card {
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.settings-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.settings-subtitle {
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.settings-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.settings-input {
+  min-height: 50px;
+  border-radius: 10px;
+}
+
+.settings-input:focus {
+  border-color: #2d7d73;
+  box-shadow: 0 0 0 0.15rem rgba(45, 125, 115, 0.15);
+}
+
+
+/*  logo and navbar */
+
+.nav-logo {
+  height: 85px;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-text {
+  font-weight: 600;
+}
+
+/* colour for nav */
+.navbar {
+  background: linear-gradient(90deg, #1b5e55, #2d7d73) !important;
+  padding: 6px 20px;
+  min-height: 75px;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.navbar .nav-link:hover,
+.navbar .navbar-brand:hover {
+  opacity: 0.85;
+}
+
+.navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.navbar-toggler-icon {
+  filter: brightness(0) invert(1);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/*  main buttons and links */
+
+.btn-primary {
+  background: #2d7d73;
+  border-color: #2d7d73;
+}
+
+.btn-primary:hover {
+  background: #1b5e55;
+  border-color: #1b5e55;
+}
+
+a {
+  color: #2d7d73;
+}
+
+a:hover {
+  color: #1b5e55;
+}
+
+
+/*  dark mode */
+
+body.dark-mode {
+  background-color: #0f172a;
+  color: #f9fafb;
+}
+
+body.dark-mode .card {
+  background: #1f2937;
+  color: #f9fafb;
+  border: 1px solid #374151;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode p,
+body.dark-mode label,
+body.dark-mode .settings-title,
+body.dark-mode .settings-subtitle,
+body.dark-mode .settings-section-title,
+body.dark-mode .auth-title,
+body.dark-mode .auth-subtitle,
+body.dark-mode .form-check-label,
+body.dark-mode .auth-switch-text {
+  color: #f9fafb;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .settings-input,
+body.dark-mode .auth-input,
+body.dark-mode input {
+  background-color: #111827;
+  color: #f9fafb;
+  border: 1px solid #4b5563;
+}
+
+body.dark-mode .form-control::placeholder,
+body.dark-mode .settings-input::placeholder,
+body.dark-mode .auth-input::placeholder {
+  color: #d1d5db;
+}
+
+body.dark-mode .navbar {
+  background: #0b1120 !important;
+}
+
+body.dark-mode .auth-link,
+body.dark-mode a {
+  color: #81bfae;
+}
+
+body.dark-mode .auth-link:hover,
+body.dark-mode a:hover {
+  color: #b7e0d6;
+}
+
+body.dark-mode .btn-primary,
+body.dark-mode .auth-btn {
+  background: #2d7d73;
+  border-color: #2d7d73;
+}
+
+body.dark-mode .btn-primary:hover,
+body.dark-mode .auth-btn:hover {
+  background: #1b5e55;
+  border-color: #1b5e55;
+}
+
+
+/*  smaller screens  */
+
+@media (max-width: 768px) {
+  .auth-title {
+    font-size: 1.9rem;
+    white-space: normal;
+  }
+
+  .auth-wrapper {
+    padding: 25px 12px;
+  }
+
+  .auth-card {
+    max-width: 100%;
+  }
+
+  .settings-wrapper {
+    padding: 25px 12px;
+  }
+
+  .nav-logo {
+    height: 36px;
+  }
+}
+
+/* dark mode colours */
+
+body.dark-mode {
+  background-color: #0f172a;
+  color: #f9fafb;
+}
+
+/* all normal text */
+body.dark-mode,
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode label,
+body.dark-mode small,
+body.dark-mode li,
+body.dark-mode td,
+body.dark-mode th {
+  color: #f9fafb;
+}
+
+/* headings */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #ffffff;
+}
+
+/* cards */
+body.dark-mode .card {
+  background: #1f2937;
+  color: #f9fafb;
+  border: 1px solid #374151;
+}
+
+/* forms */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select,
+body.dark-mode .form-control,
+body.dark-mode .settings-input,
+body.dark-mode .auth-input {
+  background-color: #111827;
+  color: #ffffff;
+  border: 1px solid #4b5563;
+}
+
+/* placeholders */
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder,
+body.dark-mode .form-control::placeholder {
+  color: #d1d5db;
+}
+
+/* links */
+body.dark-mode a {
+  color: #81bfae;
+}
+
+body.dark-mode a:hover {
+  color: #b7e0d6;
+}
+
+/* navbar */
+body.dark-mode .navbar {
+  background: #0b1120 !important;
+}
+
+/* buttons */
+body.dark-mode .btn-primary,
+body.dark-mode .auth-btn {
+  background: #2d7d73;
+  border-color: #2d7d73;
+}
+
+body.dark-mode .btn-primary:hover,
+body.dark-mode .auth-btn:hover {
+  background: #1b5e55;
+  border-color: #1b5e55;
 }

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="settings-wrapper">
+  <div class="row justify-content-center">
+
+    <div class="col-lg-8">
+      <div class="card shadow-sm settings-card">
+        <div class="card-body p-4 p-md-5">
+
+          <h2 class="settings-title mb-2">Settings</h2>
+          <p class="settings-subtitle mb-4">Manage your account and app settings.</p>
+
+          <div class="settings-section mb-4">
+            <h4 class="settings-section-title">Account Information</h4>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control settings-input" value="{{ current_user.email }}" readonly>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Height (cm)</label>
+                <input type="text" class="form-control settings-input" value="{{ current_user.height or '' }}">
+              </div>
+
+              <div class="col-md-6 mb-3">
+               <label class="form-label">Weight (kg)</label>
+               <input type="text" class="form-control settings-input" value="{{ current_user.weight or '' }}">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Birth Date</label>
+                <input type="text" class="form-control settings-input" value="{{ current_user.birth_date or '' }}">
+              </div>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="settings-section mb-4">
+            <h4 class="settings-section-title">Preferences</h4>
+
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="notifications">
+              <label class="form-check-label" for="notifications">Enable email notifications</label>
+            </div>
+
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" id="reminders">
+              <label class="form-check-label" for="reminders">Enable recovery reminders</label>
+            </div>
+
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="themeToggle">
+              <label class="form-check-label" for="themeToggle">Dark mode</label>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="settings-section">
+            <h4 class="settings-section-title">Account Actions</h4>
+
+            <div class="d-flex gap-2 flex-wrap">
+
+              <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Log Out</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+  // dark mode toggle
+  document.addEventListener("DOMContentLoaded", function () {
+    let toggle = document.getElementById("themeToggle");
+    let logo = document.getElementById("site-logo");
+    let savedTheme = localStorage.getItem("theme");
+    if (toggle) {
+        if (savedTheme === "dark") {
+            toggle.checked = true;
+        }
+        else {
+        toggle.checked = false;
+    }
+
+      toggle.addEventListener("change", function () {
+
+        if (this.checked) {
+          document.body.classList.add("dark-mode");
+          localStorage.setItem("theme", "dark");
+          if (logo) {
+            logo.src = "{{ url_for('static', filename='images/DarkLogo.png') }}";
+          }
+        }
+        else {
+          document.body.classList.remove("dark-mode");
+          localStorage.setItem("theme", "light");
+          if (logo) {
+            logo.src = "{{ url_for('static', filename='images/WhiteLogo.png') }}";
+          }
+        }
+
+      });
+
+    }
+
+  });
+</script>
+
+{% endblock %}
